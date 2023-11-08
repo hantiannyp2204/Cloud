@@ -4,6 +4,8 @@ using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
 using TMPro;
+using UnityEditor.SearchService;
+using UnityEngine.SceneManagement;
 public class PFUserMgt : MonoBehaviour
 {
 
@@ -37,7 +39,7 @@ public class PFUserMgt : MonoBehaviour
 
         var req = new UpdateUserTitleDisplayNameRequest
         {
-            DisplayName = displayName.text,
+            DisplayName = displayName.text
         };
         PlayFabClientAPI.UpdateUserTitleDisplayName(req, OnDisplayNameUpdate, OnError);
     }
@@ -48,6 +50,9 @@ public class PFUserMgt : MonoBehaviour
     void OnLoginSuccessful(LoginResult r)
     {
         UpdateMessage("Login successful!" + r.PlayFabId + r.InfoResultPayload.PlayerProfile.DisplayName);
+
+        //goes into the main menu
+        SceneManager.LoadScene("MainMenu");
     }
     public void OnButtonLoginEmail()
     {
