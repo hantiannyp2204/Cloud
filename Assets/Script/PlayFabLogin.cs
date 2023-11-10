@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class PlayFabLogin : MonoBehaviour
 {
+    public bool programeStart;
     public void Start()
     {
+        programeStart = false;
         if (string.IsNullOrEmpty(PlayFabSettings.staticSettings.TitleId))
         {
             /*
@@ -16,11 +18,16 @@ public class PlayFabLogin : MonoBehaviour
         }
         var request = new LoginWithCustomIDRequest { CustomId = "GettingStartedGuide", CreateAccount = true };
         PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
+        
     }
 
+
+    //This is the start fucntion now
     private void OnLoginSuccess(LoginResult result)
     {
+        
         Debug.Log("Congratulations, you made your first successful API call!");
+        programeStart = true;
     }
 
     private void OnLoginFailure(PlayFabError error)

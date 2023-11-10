@@ -8,17 +8,43 @@ using UnityEditor.SearchService;
 using UnityEngine.SceneManagement;
 public class PFUserMgt : MonoBehaviour
 {
-
-
     [SerializeField]
     TMP_InputField userEmail, userPassword, userName, currentScore, displayName;
     [SerializeField]
-    TextMeshProUGUI Message;
+    TextMeshProUGUI Message, Leaderboard;
 
+    private PlayFabLogin playFabLogin;
+    private bool startRan;
+    private void Start()
+    {
+        startRan = false;
+        playFabLogin = GetComponent<PlayFabLogin>();
+        UpdateMessage(' '.ToString());
+        UpdateLeaderboard(' '.ToString());
+    }
+    private void Update()
+    {
+        if (playFabLogin.programeStart == true && startRan == false)
+        {
+            NewStart();
+            startRan = true;
+        }
+    }
+
+    //our custom made start function
+    private void NewStart()
+    {
+        OnButtonGetLeaderboard();
+    }
     void UpdateMessage(string newMessage)
     {
         Debug.Log(newMessage);
         Message.text = newMessage;
+    }
+    void UpdateLeaderboard(string newLeaderboard)
+    {
+        Debug.Log(newLeaderboard);
+        Leaderboard.text = newLeaderboard;
     }
     void OnError(PlayFabError error)
     {
@@ -52,7 +78,7 @@ public class PFUserMgt : MonoBehaviour
         UpdateMessage("Login successful!" + r.PlayFabId + r.InfoResultPayload.PlayerProfile.DisplayName);
 
         //goes into the main menu
-        SceneManager.LoadScene("MainMenu");
+        //SceneManager.LoadScene("MainMenu");
     }
     public void OnButtonLoginEmail()
     {
@@ -95,13 +121,17 @@ public class PFUserMgt : MonoBehaviour
     }
     void OnLeaderboardGet(GetLeaderboardResult r)
     {
-        string LeaderboardStr = "Leaderboard \n";
+        int leaderboardCount = 0;
+        Debug.Log("Leaderboard");
+        string LeaderboardStr = null;
         foreach (var item in r.Leaderboard)
         {
+            leaderboardCount++;
             string oneraw = item.Position + '/' + item.PlayFabId + '/' + item.DisplayName + '/' + item.StatValue + "\n";
             LeaderboardStr += oneraw;//combine all display into one string
-            UpdateMessage(LeaderboardStr);
+            UpdateLeaderboard(LeaderboardStr);
         }
+        Debug.Log(leaderboardCount);
     }
     public void OnButtonSendLeaderboard()
     {
@@ -118,9 +148,18 @@ public class PFUserMgt : MonoBehaviour
         };
         UpdateMessage("Submitting score:" + currentScore.text);
         PlayFabClientAPI.UpdatePlayerStatistics(req, OnleaderboardUpdate, OnError);
+
     }
     void OnleaderboardUpdate(UpdatePlayerStatisticsResult r)
     {
         UpdateMessage("Successful leaderboard sent:"+r.ToString());
+        //updates leaderboard automaticlly
+        var lbreq = new GetLeaderboardRequest
+        {
+            StatisticName = "highscore",
+            StartPosition = 0,
+            MaxResultsCount = 10
+        };
+        Invoke("OnButtonGetLeaderboard",0.5f);
     }
 }
