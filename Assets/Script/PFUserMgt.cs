@@ -35,6 +35,12 @@ public class PFUserMgt : MonoBehaviour
     private void NewStart()
     {
         OnButtonGetLeaderboard();
+        //starts as guest when not logged in
+        var req = new UpdateUserTitleDisplayNameRequest
+        {
+            DisplayName = "Guest"
+        };
+        PlayFabClientAPI.UpdateUserTitleDisplayName(req, OnDisplayNameUpdate, OnError);
     }
     void UpdateMessage(string newMessage)
     {
@@ -71,11 +77,16 @@ public class PFUserMgt : MonoBehaviour
     }
     void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult r)
     {
+        if(r.DisplayName == "Guest")
+        {
+            Debug.Log("You are now Guest");
+        }
         UpdateMessage("Display name updated to " + r.DisplayName);
     }
     void OnLoginSuccessful(LoginResult r)
     {
         UpdateMessage("Login successful!" + r.PlayFabId + r.InfoResultPayload.PlayerProfile.DisplayName);
+
 
         //goes into the main menu
         //SceneManager.LoadScene("MainMenu");
@@ -127,7 +138,7 @@ public class PFUserMgt : MonoBehaviour
         foreach (var item in r.Leaderboard)
         {
             leaderboardCount++;
-            string oneraw = item.Position + '/' + item.PlayFabId + '/' + item.DisplayName + '/' + item.StatValue + "\n";
+            string oneraw = /*item.Position + '/' + item.PlayFabId + '/' +*/ item.DisplayName + " | " + item.StatValue + "\n";
             LeaderboardStr += oneraw;//combine all display into one string
             UpdateLeaderboard(LeaderboardStr);
         }
@@ -146,7 +157,7 @@ public class PFUserMgt : MonoBehaviour
                 }
             }
         };
-        UpdateMessage("Submitting score:" + currentScore.text);
+        UpdateMessage("Submitting score:" + currentScore.text + "to player, ");
         PlayFabClientAPI.UpdatePlayerStatistics(req, OnleaderboardUpdate, OnError);
 
     }
@@ -160,6 +171,8 @@ public class PFUserMgt : MonoBehaviour
             StartPosition = 0,
             MaxResultsCount = 10
         };
+
+        //resets the leaderboard
         Invoke("OnButtonGetLeaderboard",0.5f);
     }
 }
