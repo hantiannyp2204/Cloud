@@ -795,7 +795,7 @@ namespace PlayFab
             }
             else
             {
-                _tempSb.Append(ApiEndpoint).Append(": ").Append(ErrorMessage);
+                _tempSb.Append(ErrorMessage);
             }
 
             if (ErrorDetails != null)

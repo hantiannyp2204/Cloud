@@ -4,59 +4,83 @@ using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
 using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine.SceneManagement;
+
 public class PFUserMgt : MonoBehaviour
 {
+
+
     [SerializeField]
     TMP_InputField userEmail, userPassword, userName, currentScore, displayName;
     [SerializeField]
-    TextMeshProUGUI Message, Leaderboard;
+    TMP_Text registerText, usernamePlaceholder, loginButtonText;
+    [SerializeField]
+    TextMeshProUGUI Message;
 
-    private PlayFabLogin playFabLogin;
-    private bool startRan;
-    private void Start()
+    [Header("animtion")]
+    public Animator animator;
+
+    bool isRegistering = false;
+
+    public void OnLoginButtonPressed()
     {
-        startRan = false;
-        playFabLogin = GetComponent<PlayFabLogin>();
-        UpdateMessage(' '.ToString());
-        UpdateLeaderboard(' '.ToString());
-    }
-    private void Update()
-    {
-        if (playFabLogin.programeStart == true && startRan == false)
+        if(isRegistering == false)
         {
-            NewStart();
-            startRan = true;
+
+            OnButtonLoginUserName();
+        }
+        else
+        {
+
+            OnButtonRegister();
         }
     }
-
-    //our custom made start function
-    private void NewStart()
+    private void Start()
     {
-        OnButtonGetLeaderboard();
-        //starts as guest when not logged in
-        var req = new UpdateUserTitleDisplayNameRequest
-        {
-            DisplayName = "Guest"
-        };
-        PlayFabClientAPI.UpdateUserTitleDisplayName(req, OnDisplayNameUpdate, OnError);
+        switchToLogin();
+        UpdateMessage("");
     }
     void UpdateMessage(string newMessage)
     {
         Debug.Log(newMessage);
         Message.text = newMessage;
     }
-    void UpdateLeaderboard(string newLeaderboard)
-    {
-        Debug.Log(newLeaderboard);
-        Leaderboard.text = newLeaderboard;
-    }
     void OnError(PlayFabError error)
     {
         UpdateMessage("Error " + error.GenerateErrorReport());
     }
 
+    public void toggleLoginRegister()
+    {
+        //registering
+        if(isRegistering == false)
+        {
+            animator.Play("LoginAnimation");
+            registerText.text = "Login";
+            switchToRegister();
+            isRegistering = true;
+        }
+        //looging in
+        else
+        {
+            animator.Play("RegisterAnimation");
+            registerText.text = "Register";
+            switchToLogin();
+            isRegistering = false;
+        }
+    }
+    void switchToRegister()
+    {
+        loginButtonText.text = "Register";
+        usernamePlaceholder.text = "Username";
+        userEmail.interactable = true;
+    }
+    void switchToLogin()
+    {
+        loginButtonText.text = "Login";
+        usernamePlaceholder.text = "Username/Email";
+        userEmail.interactable = false;
+    }
     public void OnButtonRegister()
     {
         var regReq = new RegisterPlayFabUserRequest {
@@ -71,25 +95,19 @@ public class PFUserMgt : MonoBehaviour
 
         var req = new UpdateUserTitleDisplayNameRequest
         {
-            DisplayName = displayName.text
+            DisplayName = displayName.text,
         };
         PlayFabClientAPI.UpdateUserTitleDisplayName(req, OnDisplayNameUpdate, OnError);
     }
     void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult r)
     {
-        if(r.DisplayName == "Guest")
-        {
-            Debug.Log("You are now Guest");
-        }
         UpdateMessage("Display name updated to " + r.DisplayName);
     }
     void OnLoginSuccessful(LoginResult r)
     {
-        UpdateMessage("Login successful!" + r.PlayFabId + r.InfoResultPayload.PlayerProfile.DisplayName);
-
-
-        //goes into the main menu
-        //SceneManager.LoadScene("MainMenu");
+        UpdateMessage("Login successful! Welcome " + r.InfoResultPayload.PlayerProfile.DisplayName);
+        Message.color = Color.green;
+        SceneManager.LoadScene("MainMenu");
     }
     public void OnButtonLoginEmail()
     {
@@ -132,17 +150,13 @@ public class PFUserMgt : MonoBehaviour
     }
     void OnLeaderboardGet(GetLeaderboardResult r)
     {
-        int leaderboardCount = 0;
-        Debug.Log("Leaderboard");
-        string LeaderboardStr = null;
+        string LeaderboardStr = "Leaderboard \n";
         foreach (var item in r.Leaderboard)
         {
-            leaderboardCount++;
-            string oneraw = /*item.Position + '/' + item.PlayFabId + '/' +*/ item.DisplayName + " | " + item.StatValue + "\n";
+            string oneraw = item.Position + '/' + item.PlayFabId + '/' + item.DisplayName + '/' + item.StatValue + "\n";
             LeaderboardStr += oneraw;//combine all display into one string
-            UpdateLeaderboard(LeaderboardStr);
+            UpdateMessage(LeaderboardStr);
         }
-        Debug.Log(leaderboardCount);
     }
     public void OnButtonSendLeaderboard()
     {
@@ -157,22 +171,11 @@ public class PFUserMgt : MonoBehaviour
                 }
             }
         };
-        UpdateMessage("Submitting score:" + currentScore.text + "to player, ");
+        UpdateMessage("Submitting score:" + currentScore.text);
         PlayFabClientAPI.UpdatePlayerStatistics(req, OnleaderboardUpdate, OnError);
-
     }
     void OnleaderboardUpdate(UpdatePlayerStatisticsResult r)
     {
         UpdateMessage("Successful leaderboard sent:"+r.ToString());
-        //updates leaderboard automaticlly
-        var lbreq = new GetLeaderboardRequest
-        {
-            StatisticName = "highscore",
-            StartPosition = 0,
-            MaxResultsCount = 10
-        };
-
-        //resets the leaderboard
-        Invoke("OnButtonGetLeaderboard",0.5f);
     }
 }
