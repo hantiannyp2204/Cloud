@@ -11,7 +11,7 @@ public class PFUserMgt : MonoBehaviour
 
 
     [SerializeField]
-    TMP_InputField userEmail, userPassword, userName, currentScore, displayName;
+    TMP_InputField userEmail, userPassword, userInfo, currentScore, displayName;
     [SerializeField]
     TMP_Text registerText, usernamePlaceholder, loginButtonText;
     [SerializeField]
@@ -21,13 +21,13 @@ public class PFUserMgt : MonoBehaviour
     public Animator animator;
 
     bool isRegistering = false;
-
+   
     public void OnLoginButtonPressed()
     {
         if(isRegistering == false)
         {
 
-            OnButtonLoginUserName();
+            OnButtonLogin();
         }
         else
         {
@@ -39,6 +39,7 @@ public class PFUserMgt : MonoBehaviour
     {
         switchToLogin();
         UpdateMessage("");
+       
     }
     void UpdateMessage(string newMessage)
     {
@@ -49,7 +50,14 @@ public class PFUserMgt : MonoBehaviour
     {
         UpdateMessage("Error " + error.GenerateErrorReport());
     }
-
+    void OnErrorUsernameLogin(PlayFabError error)
+    {
+        OnButtonLoginEmail();
+    }
+    void OnErrorEmailAndUsernameLogin(PlayFabError error)
+    {
+        UpdateMessage("Error Username/Email or Password Invalid");
+    }
     public void toggleLoginRegister()
     {
         //registering
@@ -81,11 +89,12 @@ public class PFUserMgt : MonoBehaviour
         usernamePlaceholder.text = "Username/Email";
         userEmail.interactable = false;
     }
+    
     public void OnButtonRegister()
     {
         var regReq = new RegisterPlayFabUserRequest {
             Email = userEmail.text,
-            Password = userPassword.text, Username = userName.text
+            Password = userPassword.text, Username = userInfo.text
         };
         PlayFabClientAPI.RegisterPlayFabUser(regReq, OnRegSuccessful, OnError);
     }
@@ -113,7 +122,7 @@ public class PFUserMgt : MonoBehaviour
     {
         var loginRequest = new LoginWithEmailAddressRequest
         {
-            Email = userEmail.text,
+            Email = userInfo.text,
             Password = userPassword.text,
 
             InfoRequestParameters = new GetPlayerCombinedInfoRequestParams
@@ -121,13 +130,13 @@ public class PFUserMgt : MonoBehaviour
                 GetPlayerProfile = true
             }
         };
-        PlayFabClientAPI.LoginWithEmailAddress(loginRequest, OnLoginSuccessful, OnError);
+        PlayFabClientAPI.LoginWithEmailAddress(loginRequest, OnLoginSuccessful, OnErrorEmailAndUsernameLogin);
     }
-    public void OnButtonLoginUserName()
+    public void OnButtonLogin()
     {
         var loginRequest = new LoginWithPlayFabRequest
-        {
-            Username = userName.text,
+        { 
+            Username = userInfo.text,
             Password = userPassword.text,
             //to get player profile, including display name
             InfoRequestParameters = new GetPlayerCombinedInfoRequestParams
@@ -135,7 +144,8 @@ public class PFUserMgt : MonoBehaviour
                 GetPlayerProfile = true
             }
         };
-        PlayFabClientAPI.LoginWithPlayFab(loginRequest, OnLoginSuccessful, OnError);
+        //try email login if dont work
+        PlayFabClientAPI.LoginWithPlayFab(loginRequest, OnLoginSuccessful, OnErrorUsernameLogin);
     }
 
     public void OnButtonGetLeaderboard()
