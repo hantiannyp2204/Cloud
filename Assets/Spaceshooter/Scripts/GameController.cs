@@ -86,7 +86,10 @@ public class GameController : MonoBehaviour {
         this.score += score;
         updateScore();
     }
-
+    public int getScore()
+    {
+        return score;
+    }    
     void updateScore(){
         scoreText.text = "Score:" + score;
     }

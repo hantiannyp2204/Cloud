@@ -11,7 +11,6 @@ public class CharacterSelection : MonoBehaviour {
     void Start() {
         index = PlayerPrefs.GetInt("SelectedCharacter");
         characters = new GameObject[transform.childCount];
-        Debug.Log(transform.childCount);
         for (int i = 0; i < transform.childCount; i++) {
             characters[i] = transform.GetChild(i).gameObject;
             characters[i].SetActive(false);

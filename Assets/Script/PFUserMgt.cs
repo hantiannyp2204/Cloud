@@ -5,6 +5,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System;
 
 public class PFUserMgt : MonoBehaviour
 {
@@ -19,7 +20,8 @@ public class PFUserMgt : MonoBehaviour
     public Animator animator;
 
     bool isRegistering = false;
-   
+
+
     public void OnLoginButtonPressed()
     {
         if(isRegistering == false)
@@ -123,12 +125,14 @@ public class PFUserMgt : MonoBehaviour
     {
         UpdateMessage("Display name updated to " + r.DisplayName);
     }
+    
     void OnLoginSuccessful(LoginResult r)
     {
         UpdateMessage("Login successful! Welcome " + r.InfoResultPayload.PlayerProfile.DisplayName);
         Message.color = Color.green;
         SceneManager.LoadScene("MainMenu");
     }
+   
     public void OnButtonLoginEmail()
     {
         var loginRequest = new LoginWithEmailAddressRequest
@@ -155,6 +159,7 @@ public class PFUserMgt : MonoBehaviour
                 GetPlayerProfile = true
             }
         };
+
         //try email login if dont work
         PlayFabClientAPI.LoginWithPlayFab(loginRequest, OnLoginSuccessful, OnErrorUsernameLogin);
     }
@@ -169,6 +174,8 @@ public class PFUserMgt : MonoBehaviour
         };
         PlayFabClientAPI.GetLeaderboard(lbreq, OnLeaderboardGet, OnError);
     }
+    
+
     void OnLeaderboardGet(GetLeaderboardResult r)
     {
         string LeaderboardStr = "Leaderboard \n";

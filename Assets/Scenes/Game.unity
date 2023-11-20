@@ -276,6 +276,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e88a6e3ac7f39147bdb24d9f1204fc6, type: 3}
+--- !u!114 &3549643 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1175101975, guid: 8e88a6e3ac7f39147bdb24d9f1204fc6, type: 3}
+  m_PrefabInstance: {fileID: 3549642}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1960402937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c5f3212a1422504eaf8cc5301c99755, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9912835
 GameObject:
   m_ObjectHideFlags: 0
@@ -345,6 +356,7 @@ GameObject:
   - component: {fileID: 66382109}
   - component: {fileID: 66382108}
   - component: {fileID: 66382110}
+  - component: {fileID: 66382111}
   m_Layer: 0
   m_Name: Game Controller
   m_TagString: GameController
@@ -488,6 +500,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &66382111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 66382107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce17678b6e825034db44048ac52d4487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentUsername: 
+  currentHighscore: 0
+  currentRank: 0
 --- !u!1 &135508979
 GameObject:
   m_ObjectHideFlags: 0
@@ -997,8 +1024,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 977d3540a6ed8ae43b313565fbfc40e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scoreTxt: {fileID: 1143101530}
+  rankTxt: {fileID: 1304795542}
   leaderboard: {fileID: 1960402937}
   scoreboard: {fileID: 530118035}
+  gameController: {fileID: 66382108}
+  playerValue: {fileID: 66382111}
+  leaderboardManager: {fileID: 3549643}
 --- !u!1 &913560558
 GameObject:
   m_ObjectHideFlags: 0
@@ -1476,10 +1508,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 70
+  m_fontSize: 72
   m_fontSizeBase: 70
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1584,9 +1616,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'currently ranked at
-
-    nth place'
+  m_text: currently ranked position n
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1613,15 +1643,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 40
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 40
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0

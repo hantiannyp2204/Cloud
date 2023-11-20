@@ -8,9 +8,9 @@ using UnityEditor.VersionControl;
 using TMPro;
 using Unity.VisualScripting;
 
-public class leaderboardManager : MonoBehaviour
+public class LeaderboardManager : MonoBehaviour
 {
-    public static leaderboardManager instance { get; private set; }
+    public static LeaderboardManager instance { get; private set; }
     [SerializeField]
     TextMeshProUGUI leaderboard;
     // Start is called before the first frame update
@@ -47,7 +47,6 @@ public class leaderboardManager : MonoBehaviour
     void UpdateMessage(string newMessage)
     {
         Debug.Log(newMessage);
-        leaderboard.text = newMessage;
     }
     public void updateLeaderboardScore(int newScore)
     {
