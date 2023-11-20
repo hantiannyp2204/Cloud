@@ -8,8 +8,6 @@ using UnityEngine.SceneManagement;
 
 public class PFUserMgt : MonoBehaviour
 {
-
-
     [SerializeField]
     TMP_InputField userEmail, userPassword, userInfo, currentScore, displayName;
     [SerializeField]
@@ -89,7 +87,19 @@ public class PFUserMgt : MonoBehaviour
         usernamePlaceholder.text = "Username/Email";
         userEmail.interactable = false;
     }
-    
+    public void OnButtonPasswordReset()
+    {
+        var passReq = new SendAccountRecoveryEmailRequest
+        {
+            Email = userInfo.text,
+            TitleId = PlayFabSettings.TitleId
+        };
+        PlayFabClientAPI.SendAccountRecoveryEmail(passReq, OnPasswordRecoverSuccess, OnError);
+    }
+    void OnPasswordRecoverSuccess(SendAccountRecoveryEmailResult r)
+    {
+        UpdateMessage("Password recovery sent to " + userEmail.text);
+    }
     public void OnButtonRegister()
     {
         var regReq = new RegisterPlayFabUserRequest {
@@ -102,6 +112,7 @@ public class PFUserMgt : MonoBehaviour
     {
         UpdateMessage("Registration success!");
 
+        //update current player's name
         var req = new UpdateUserTitleDisplayNameRequest
         {
             DisplayName = displayName.text,
