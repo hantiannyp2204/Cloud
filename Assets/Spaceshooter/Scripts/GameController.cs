@@ -19,6 +19,8 @@ public class GameController : MonoBehaviour {
     public Text restartText;
     public Text mainMenuText;
 
+    public GameObject gameOverScreen;
+
     private bool restart;
     private bool gameOver;
     private int score;
@@ -33,6 +35,7 @@ public class GameController : MonoBehaviour {
         gameOverText.text = "";
         restartText.text = "";
         mainMenuText.text = "";
+        gameOverScreen.SetActive(false);
         restart = false;
         gameOver = false;
         score = 0;
@@ -46,7 +49,7 @@ public class GameController : MonoBehaviour {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             } 
             else if(Input.GetKey(KeyCode.Q)){
-                SceneManager.LoadScene("Menu");
+                SceneManager.LoadScene("MainMenu");
             }
         }
         if (gameOver) {
@@ -72,8 +75,10 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    //lose game
     public void gameIsOver(){
         gameOverText.text = "Game Over";
+        gameOverScreen.SetActive(true);
         gameOver = true;
     }
 
