@@ -63,7 +63,7 @@ public class LeaderboardManager : MonoBehaviour
         };
         UpdateMessage("Submitting score:" + newScore);
         PlayFabClientAPI.UpdatePlayerStatistics(req, OnleaderboardUpdate, OnError);
-    }
+    }   
     void OnleaderboardUpdate(UpdatePlayerStatisticsResult r)
     {
         UpdateMessage("Successful leaderboard sent:" + r.ToString());

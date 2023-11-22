@@ -10,7 +10,7 @@ using System;
 public class PFUserMgt : MonoBehaviour
 {
     [SerializeField]
-    TMP_InputField userEmail, userPassword, userInfo, currentScore, displayName;
+    TMP_InputField userEmail, userPassword, userInfo, currentScore;
     [SerializeField]
     TMP_Text registerText, usernamePlaceholder, loginButtonText;
     [SerializeField]
@@ -24,7 +24,7 @@ public class PFUserMgt : MonoBehaviour
 
     public void OnLoginButtonPressed()
     {
-        if(isRegistering == false)
+        if (isRegistering == false)
         {
 
             OnButtonLogin();
@@ -39,7 +39,7 @@ public class PFUserMgt : MonoBehaviour
     {
         switchToLogin();
         UpdateMessage("");
-       
+
     }
     void UpdateMessage(string newMessage)
     {
@@ -61,7 +61,7 @@ public class PFUserMgt : MonoBehaviour
     public void toggleLoginRegister()
     {
         //registering
-        if(isRegistering == false)
+        if (isRegistering == false)
         {
             animator.Play("LoginAnimation");
             registerText.text = "Login";
@@ -117,9 +117,13 @@ public class PFUserMgt : MonoBehaviour
         //update current player's name
         var req = new UpdateUserTitleDisplayNameRequest
         {
-            DisplayName = displayName.text,
+            DisplayName = userInfo.text,
         };
+
         PlayFabClientAPI.UpdateUserTitleDisplayName(req, OnDisplayNameUpdate, OnError);
+
+         
+       
     }
     void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult r)
     {
