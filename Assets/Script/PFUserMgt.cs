@@ -6,6 +6,8 @@ using PlayFab.ClientModels;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System;
+using UnityEngine.UIElements;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class PFUserMgt : MonoBehaviour
 {
@@ -21,7 +23,16 @@ public class PFUserMgt : MonoBehaviour
 
     bool isRegistering = false;
 
-
+    string deviceID = null;
+    string currentUserName;
+    deviceType currentDeviceType = deviceType.None;
+    private enum deviceType
+    {
+        None,
+        Andriod,
+        IOS,
+        PC
+    }
     public void OnLoginButtonPressed()
     {
         if (isRegistering == false)
@@ -120,20 +131,100 @@ public class PFUserMgt : MonoBehaviour
             DisplayName = userInfo.text,
         };
 
-        PlayFabClientAPI.UpdateUserTitleDisplayName(req, OnDisplayNameUpdate, OnError);
-
-         
-       
+        PlayFabClientAPI.UpdateUserTitleDisplayName(req, result=>Debug.Log("Username updated to" + req.DisplayName), OnError);
     }
-    void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult r)
+    public void OnDeviceLoggin()
     {
-        UpdateMessage("Display name updated to " + r.DisplayName);
+        if(Application.platform == RuntimePlatform.Android)
+        {
+            AndroidJavaClass up = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject currentActivity = up.GetStatic<AndroidJavaObject>("currentActivity");
+            AndroidJavaObject contentResolver = currentActivity.Call<AndroidJavaObject>("getContentResolver");
+            AndroidJavaClass secure = new AndroidJavaClass("android.provider.Settings$Secure");
+            deviceID = secure.CallStatic<string>("getString", contentResolver, "android_id");
+            currentDeviceType = deviceType.Andriod;
+        }
+        else if(Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            deviceID = UnityEngine.iOS.Device.vendorIdentifier;
+            currentDeviceType = deviceType.IOS;
+        }
+        else
+        {
+            deviceID = SystemInfo.deviceUniqueIdentifier;
+            currentDeviceType = deviceType.PC;
+        }
+
+        LoginWithCurrentDevice();
     }
-    
+    void LoginWithCurrentDevice()
+    {
+        switch (currentDeviceType)
+        {
+            case deviceType.Andriod:
+                var andriodLogin = new LoginWithAndroidDeviceIDRequest
+                {
+                    AndroidDeviceId = deviceID.ToString(),
+                    TitleId = PlayFabSettings.TitleId,
+                    CreateAccount = true
+                };
+
+                PlayFabClientAPI.LoginWithAndroidDeviceID(andriodLogin, OnLoginSuccessful, OnError);
+                break;
+            case deviceType.IOS:
+                var IOSLogin = new LoginWithIOSDeviceIDRequest
+                {
+                    DeviceId = deviceID.ToString(),
+                    TitleId = PlayFabSettings.TitleId,
+                    CreateAccount = true
+                };
+                PlayFabClientAPI.LoginWithIOSDeviceID(IOSLogin, OnLoginSuccessful, OnError);
+                break;
+            case deviceType.PC:
+                var PCLogin = new LoginWithCustomIDRequest
+                {
+                    CustomId = deviceID.ToString(),
+                    TitleId = PlayFabSettings.TitleId,
+                    CreateAccount = true
+                };
+                PlayFabClientAPI.LoginWithCustomID(PCLogin, OnLoginSuccessful, OnError);
+                break;
+        }
+        Debug.Log(currentDeviceType.ToString());
+
+
+    }
+
+    public void OnButtonLoginAsGuest()
+    {
+        var loginReq = new LoginWithCustomIDRequest
+        {
+            CustomId = "Guest",
+            
+        };
+        currentUserName = "Guest";
+        PlayFabClientAPI.LoginWithCustomID(loginReq, OnLoginSuccessful, OnError);
+    }
     void OnLoginSuccessful(LoginResult r)
     {
-        UpdateMessage("Login successful! Welcome " + r.InfoResultPayload.PlayerProfile.DisplayName);
-        Message.color = Color.green;
+        if(currentUserName == "Guest")
+        {
+            var req = new UpdateUserTitleDisplayNameRequest
+            {
+                DisplayName = "Guest",
+            };
+
+            PlayFabClientAPI.UpdateUserTitleDisplayName(req, result => Debug.Log("Done"), OnError);
+        }
+        else if(currentDeviceType != deviceType.None)
+        {
+            var req = new UpdateUserTitleDisplayNameRequest
+            {
+                DisplayName = (currentDeviceType + " Player").ToString(),
+            };
+
+            PlayFabClientAPI.UpdateUserTitleDisplayName(req, result => Debug.Log("Done"), OnError);
+        }
         SceneManager.LoadScene("MainMenu");
     }
    

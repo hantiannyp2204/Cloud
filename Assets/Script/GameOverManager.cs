@@ -7,11 +7,11 @@ using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 
-public class ToggleScoreboard : MonoBehaviour
+public class GameOverManager : MonoBehaviour
 {
     bool isLeaderboard;
     [SerializeField]
-    private TMP_Text scoreTxt, rankTxt;
+    private TMP_Text scoreTxt, rankTxt, xpEarntTxt;
     [SerializeField]
     private GameObject leaderboard, scoreboard;
     [SerializeField]
@@ -20,26 +20,66 @@ public class ToggleScoreboard : MonoBehaviour
     private PlayerValue playerValue;
     [SerializeField]
     LeaderboardManager leaderboardManager;
+
+    [SerializeField]
+    PlayerStats playerStats;
+    [SerializeField]
+    ReadLevel levelReadingData;
+
     int currentRank;
+    int xpEarnt;
+    int currentXP;
+    int currentMaxXP;
     // Start is called before the first frame update
     void Start()
     {
 
         getCurrentPlayerRank();
+        Invoke("setText", 0.5f);
+        isLeaderboard = true;
+        checkToggle(false);
+        currentXP = playerStats.GetLevelAndXP().xp;
+        currentMaxXP = playerStats.GetLevelAndXP().maxXP;
+    }
+    void setText()
+    {
         //set score
         scoreTxt.text = "Your Score: " + gameController.getScore();
-   
+        //set xp
+        xpEarnt = gameController.getScore() / 10;
+        xpEarntTxt.text = xpEarnt + " xp earned";
+        //check if he level up
+        int newXP = playerStats.GetLevelAndXP().xp + xpEarnt;
+        int newLevel = playerStats.GetLevelAndXP().level;
+        bool canLevelUp = true;
+        while(canLevelUp == true)
+        {
+            if (newXP >= playerStats.GetLevelAndXP().maxXP)
+            {
+                newXP -= playerStats.GetLevelAndXP().maxXP;
+                newLevel++;
+                canLevelUp = true;
+            }
+            else
+            {
+                canLevelUp = false;
+            }
+        }
+        
+        //add new xp into player
+        playerStats.SetLevelAndXP(newLevel,newXP,10*newLevel);
+        //publish change to database
+        levelReadingData.SendJSONAutomatically();
         //update highscore if more
-        if(gameController.getScore() > playerValue.currentHighscore)
+        if (gameController.getScore() > playerValue.currentHighscore)
         {
             scoreTxt.text += "\nNEW HIGHSCORE!!!";
             leaderboardManager.updateLeaderboardScore(gameController.getScore());
+            getCurrentPlayerRank();
         }
         //set rank
-        rankTxt.text = "currently ranked at positon " + (currentRank+1).ToString();
-        isLeaderboard = true;
-        checkToggle(false);
-    }
+        rankTxt.text = "currently ranked at positon " + (currentRank + 1).ToString();
+    }    
     void OnError(PlayFabError error)
     {
         UpdateMessage("Error " + error.GenerateErrorReport());
@@ -52,6 +92,7 @@ public class ToggleScoreboard : MonoBehaviour
     {
         var lbreq = new GetLeaderboardRequest
         {
+            StatisticName = "highscore"
         };
 
         PlayFabClientAPI.GetLeaderboard(lbreq, OnRankGetCurrentPlayer, OnError);
@@ -64,6 +105,7 @@ public class ToggleScoreboard : MonoBehaviour
             if (item.DisplayName == playerValue.currentUsername)
             {
                 currentRank = item.Position;
+                Debug.Log(item.Position);
             }
         }
     }
