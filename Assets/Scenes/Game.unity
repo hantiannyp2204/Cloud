@@ -674,10 +674,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 66382107}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d170fbaf6c6de714284c5140efa960d9, type: 3}
+  m_Script: {fileID: 11500000, guid: a5d3765300e4d364287b8f26e6162f2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerStatsUI: {fileID: 0}
   playerStats: {fileID: 66382112}
 --- !u!1 &135508979
 GameObject:
@@ -1191,7 +1190,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scoreTxt: {fileID: 1143101530}
   rankTxt: {fileID: 1304795542}
-  xpEarntTxt: {fileID: 0}
+  xpEarntTxt: {fileID: 9314814}
   leaderboard: {fileID: 1960402937}
   scoreboard: {fileID: 530118035}
   gameController: {fileID: 66382108}
@@ -1458,7 +1457,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 898328401}
-        m_TargetAssemblyTypeName: ToggleScoreboard, Assembly-CSharp
+        m_TargetAssemblyTypeName: GameOverManager, Assembly-CSharp
         m_MethodName: togleLeaderboard
         m_Mode: 1
         m_Arguments:

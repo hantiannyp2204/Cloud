@@ -24,7 +24,7 @@ public class GameOverManager : MonoBehaviour
     [SerializeField]
     PlayerStats playerStats;
     [SerializeField]
-    ReadLevel levelReadingData;
+    UploadLevel levelReadingData;
 
     int currentRank;
     int xpEarnt;
@@ -43,10 +43,12 @@ public class GameOverManager : MonoBehaviour
     }
     void setText()
     {
+        int finalScore = gameController.getScore();
         //set score
-        scoreTxt.text = "Your Score: " + gameController.getScore();
+        scoreTxt.text = "Your Score: " + finalScore;
         //set xp
-        xpEarnt = gameController.getScore() / 10;
+        xpEarnt = finalScore / 10;
+
         xpEarntTxt.text = xpEarnt + " xp earned";
         //check if he level up
         int newXP = playerStats.GetLevelAndXP().xp + xpEarnt;
@@ -70,16 +72,31 @@ public class GameOverManager : MonoBehaviour
         playerStats.SetLevelAndXP(newLevel,newXP,10*newLevel);
         //publish change to database
         levelReadingData.SendJSONAutomatically();
+
         //update highscore if more
         if (gameController.getScore() > playerValue.currentHighscore)
         {
             scoreTxt.text += "\nNEW HIGHSCORE!!!";
-            leaderboardManager.updateLeaderboardScore(gameController.getScore());
-            getCurrentPlayerRank();
+            leaderboardManager.updateLeaderboardScore(finalScore);
+           
+            Invoke("UpdatePlayerRank", 0.5f);
         }
-        //set rank
-        rankTxt.text = "currently ranked at positon " + (currentRank + 1).ToString();
-    }    
+        else
+        {
+            //set rank
+            UpdatePlayerRankTxt();
+        }
+
+    }
+    void UpdatePlayerRank()
+    {
+        getCurrentPlayerRank();
+        Invoke("UpdatePlayerRankTxt", 0.5f);
+    }
+    void UpdatePlayerRankTxt()
+    {
+        rankTxt.text = "currently ranked at positon " + currentRank.ToString();
+    }
     void OnError(PlayFabError error)
     {
         UpdateMessage("Error " + error.GenerateErrorReport());
@@ -104,13 +121,14 @@ public class GameOverManager : MonoBehaviour
         {
             if (item.DisplayName == playerValue.currentUsername)
             {
-                currentRank = item.Position;
+                currentRank = item.Position + 1;
                 Debug.Log(item.Position);
             }
         }
     }
     void checkToggle(bool toggle)
     {
+        leaderboardManager.GetLeaderboard();
         if(toggle == true)
         {
             leaderboard.SetActive(true);

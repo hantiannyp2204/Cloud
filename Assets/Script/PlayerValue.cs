@@ -14,7 +14,7 @@ public class PlayerValue : MonoBehaviour
 {
     //score values
     public string currentUsername;
-    public int currentHighscore, currentRank;
+    public int currentHighscore;
 
     // Start is called before the first frame update
     void Start()

@@ -220,7 +220,7 @@ public class PFUserMgt : MonoBehaviour
         {
             var req = new UpdateUserTitleDisplayNameRequest
             {
-                DisplayName = (currentDeviceType + " Player").ToString(),
+                DisplayName = (currentDeviceType + deviceID.Substring(0,3) + " Player").ToString(),
             };
 
             PlayFabClientAPI.UpdateUserTitleDisplayName(req, result => Debug.Log("Done"), OnError);

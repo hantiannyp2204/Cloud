@@ -23,13 +23,19 @@ public class PlayerStatsUI : MonoBehaviour
     TMP_InputField newXP;
     int maxXP;
 
-    public void SetUI(Stats stat)
+    private void Start()
     {
-        playerDisplayName.text = playerStats.playerName;
-        XpSlider.value = int.Parse(stat.xp.ToString());
-        currentXP.text = stat.xp.ToString();
-        currentLevel.text = stat.level.ToString();
-        maxXP = 10 * stat.level;
+        Invoke("SetUI", 1);
+    }
+    public void SetUI()
+    {
+        PlayerStats _playerStats = playerStats;
+        playerDisplayName.text = _playerStats.playerName;
+        Debug.Log(playerDisplayName.text);
+        XpSlider.value = int.Parse(_playerStats.GetLevelAndXP().xp.ToString());
+        currentXP.text = _playerStats.GetLevelAndXP().xp.ToString();
+        currentLevel.text = _playerStats.GetLevelAndXP().level.ToString();
+        maxXP = 10 * _playerStats.GetLevelAndXP().level;
         XpSlider.maxValue = maxXP;
     }
     public Stats SendNewLevelAndXP()
