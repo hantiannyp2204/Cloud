@@ -31,7 +31,6 @@ public class PlayerStatsUI : MonoBehaviour
     {
         PlayerStats _playerStats = playerStats;
         playerDisplayName.text = _playerStats.playerName;
-        Debug.Log(playerDisplayName.text);
         XpSlider.value = int.Parse(_playerStats.GetLevelAndXP().xp.ToString());
         currentXP.text = _playerStats.GetLevelAndXP().xp.ToString();
         currentLevel.text = _playerStats.GetLevelAndXP().level.ToString();

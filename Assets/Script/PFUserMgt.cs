@@ -223,7 +223,7 @@ public class PFUserMgt : MonoBehaviour
                 DisplayName = (currentDeviceType + deviceID.Substring(0,3) + " Player").ToString(),
             };
 
-            PlayFabClientAPI.UpdateUserTitleDisplayName(req, result => Debug.Log("Done"), OnError);
+            PlayFabClientAPI.UpdateUserTitleDisplayName(req, result => Debug.Log(""), OnError);
         }
         SceneManager.LoadScene("MainMenu");
     }

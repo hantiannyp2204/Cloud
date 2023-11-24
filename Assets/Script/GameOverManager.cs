@@ -79,7 +79,7 @@ public class GameOverManager : MonoBehaviour
             scoreTxt.text += "\nNEW HIGHSCORE!!!";
             leaderboardManager.updateLeaderboardScore(finalScore);
            
-            Invoke("UpdatePlayerRank", 0.5f);
+            Invoke("UpdatePlayerRank", 1);
         }
         else
         {
