@@ -130,6 +130,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 898328400}
     m_Modifications:
+    - target: {fileID: 1175101975, guid: 8e88a6e3ac7f39147bdb24d9f1204fc6, type: 3}
+      propertyPath: Title
+      value: 
+      objectReference: {fileID: 3549644}
     - target: {fileID: 912715955605060784, guid: 8e88a6e3ac7f39147bdb24d9f1204fc6, type: 3}
       propertyPath: m_fontSize
       value: 40
@@ -287,6 +291,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c5f3212a1422504eaf8cc5301c99755, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3549644 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7910852437911928004, guid: 8e88a6e3ac7f39147bdb24d9f1204fc6, type: 3}
+  m_PrefabInstance: {fileID: 3549642}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9314812
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,7 +423,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 20, y: 0, z: 20, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -651,7 +666,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentUsername: 
   currentHighscore: 0
-  currentRank: 0
 --- !u!114 &66382112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1711,7 +1725,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 20, y: 0, z: 20, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1846,7 +1860,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 20, y: 0, z: 20, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

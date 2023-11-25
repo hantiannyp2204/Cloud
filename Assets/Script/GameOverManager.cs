@@ -109,7 +109,8 @@ public class GameOverManager : MonoBehaviour
     {
         var lbreq = new GetLeaderboardRequest
         {
-            StatisticName = "highscore"
+            StatisticName = "highscore",
+            MaxResultsCount = 100
         };
 
         PlayFabClientAPI.GetLeaderboard(lbreq, OnRankGetCurrentPlayer, OnError);

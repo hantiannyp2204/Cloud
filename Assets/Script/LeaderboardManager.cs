@@ -66,8 +66,8 @@ public class LeaderboardManager : MonoBehaviour
         var request = new GetLeaderboardAroundCharacterRequest
         {
             StatisticName = "highscore",
-            CharacterId= currentUserID,
-            MaxResultsCount = 11 // 5 above + 1 (current player) + 5 below
+            CharacterId = currentUserID,
+            MaxResultsCount = 10
         };
 
         // Send the request
@@ -76,33 +76,14 @@ public class LeaderboardManager : MonoBehaviour
 
     private void OnLeaderboardCharacterReceived(GetLeaderboardAroundCharacterResult result)
     {
-        var leaderboardResult = result.Leaderboard;
-        int playerIndex = -1;
         string LeaderboardStr = "";
-        // Find the player's index in the leaderboard
-        for (int i = 0; i < leaderboardResult.Count; i++)
+        foreach (var item in result.Leaderboard)
         {
-            if (leaderboardResult[i].CharacterId == currentUserID)
-            {
-                playerIndex = i;
-                break;
-            }
-        }
+            string oneraw = "Rank " + ((int)item.Position + 1) + ": " + item.DisplayName + " | " + item.StatValue + "\n";
+            LeaderboardStr += oneraw;//combine all display into one string
 
-        // Display the leaderboard entries around the player
-        if (playerIndex != -1)
-        {
-            int startIndex = Mathf.Max(0, playerIndex - 5);
-            int endIndex = Mathf.Min(leaderboardResult.Count, playerIndex + 6);
-
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                var entry = leaderboardResult[i];
-                string oneraw = "Rank " + (entry.Position + 1) + ": " + entry.DisplayName + " | " + entry.StatValue + "\n";
-                LeaderboardStr += oneraw;
-            }
-           leaderboard.text = LeaderboardStr;
         }
+        leaderboard.text = LeaderboardStr;
     }
     void OnLeaderboardGet(GetLeaderboardResult r)
     {
