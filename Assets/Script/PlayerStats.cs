@@ -28,19 +28,35 @@ public class PlayerStats : MonoBehaviour
     int currentLevel;
     int currentXP;
     int currenMaxXP;
+
+    bool setUI;
+    int selectedPlane;
     private void Awake()
     {
+        setUI = false;
         //gets user username
         var request = new GetPlayerProfileRequest
         {
         };
 
-        PlayFabClientAPI.GetPlayerProfile(request, result => { playerName = result.PlayerProfile.DisplayName; },OnError) ;
+        PlayFabClientAPI.GetPlayerProfile(request, result => { 
+            
+            playerName = result.PlayerProfile.DisplayName;
+            //if its guest, reset previous record of data
+            if(playerName != "Guest")
+            {
+                GetLevelAndXPJson();
+            }
+            else
+            {
+                makeFreshAccount();
+            }
 
+        },OnError) ;
         //gets data
-        GetLevelAndXPJson();
+ 
     }
-    public Stats CreateFreshLevelXPProfile()
+    Stats CreateFreshLevelXPProfile()
     {
         currenMaxXP = 10;
         return new Stats(1, 0, currenMaxXP);
@@ -51,10 +67,6 @@ public class PlayerStats : MonoBehaviour
         currentXP = _currentXP;
         currenMaxXP = _currentMaxXP;
     }
-    public Stats PublishLvlXPMaxXPToDatabase()
-    {
-        return new Stats(currentLevel, currentXP, currenMaxXP);
-    }
     public Stats GetLevelAndXP()
     {
         return new Stats(currentLevel, currentXP, currenMaxXP);
@@ -63,7 +75,7 @@ public class PlayerStats : MonoBehaviour
 
     public void SendJSONAutomatically()
     {
-        string stringListAsJson = JsonUtility.ToJson(PublishLvlXPMaxXPToDatabase());
+        string stringListAsJson = JsonUtility.ToJson(GetLevelAndXP());
         Debug.Log(stringListAsJson);
         var req = new UpdateUserDataRequest
         {
@@ -78,33 +90,39 @@ public class PlayerStats : MonoBehaviour
     {
         PlayFabClientAPI.GetUserData(new GetUserDataRequest(), OnJSONDataRecieved, OnError);
     }
+    void makeFreshAccount()
+    {
+        string stringListAsJson = JsonUtility.ToJson(CreateFreshLevelXPProfile());
+        Debug.Log(stringListAsJson);
+        var req = new UpdateUserDataRequest
+        {
+            Data = new Dictionary<string, string>
+           {
+               {"Stats",stringListAsJson}
+           }
+        };
+        //gets it again
 
+        PlayFabClientAPI.UpdateUserData(req, result => GetLevelAndXPJson(), OnError);
+    }
     void OnJSONDataRecieved(GetUserDataResult r)
     {
         if (r.Data != null && r.Data.ContainsKey("Stats"))
         {
-
             Debug.Log(r.Data["Stats"].Value);
             Stats fromJson = JsonUtility.FromJson<Stats>(r.Data["Stats"].Value);
             SetLevelAndXP(fromJson.level, fromJson.xp, fromJson.maxXP);
-
+            setUI = true;
         }
         //if its blank, make it
         else
         {
-            string stringListAsJson = JsonUtility.ToJson(CreateFreshLevelXPProfile());
-            Debug.Log(stringListAsJson);
-            var req = new UpdateUserDataRequest
-            {
-                Data = new Dictionary<string, string>
-           {
-               {"Stats",stringListAsJson}
-           }
-            };
-            //gets it again
-
-            PlayFabClientAPI.UpdateUserData(req, result => GetLevelAndXPJson(), OnError);
+            makeFreshAccount();
         }
+    }
+    public bool RunSetUI()
+    {
+        return setUI;
     }
     void OnError(PlayFabError error)
     {
@@ -115,4 +133,5 @@ public class PlayerStats : MonoBehaviour
     {
         Debug.Log(newMessage);
     }
+    
 }

@@ -63,28 +63,26 @@ public class LeaderboardManager : MonoBehaviour
     private void GetLeaderboardAroundPlayer()
     {
         // Create and configure the request
-        var request = new GetLeaderboardAroundCharacterRequest
+        var request = new GetLeaderboardAroundPlayerRequest
         {
             StatisticName = "highscore",
-            CharacterId = currentUserID,
+            PlayFabId= currentUserID,
             MaxResultsCount = 10
         };
 
         // Send the request
-        PlayFabClientAPI.GetLeaderboardAroundCharacter(request, OnLeaderboardCharacterReceived, OnError);
+        PlayFabClientAPI.GetLeaderboardAroundPlayer(request, result => {
+            string LeaderboardStr = "";
+            foreach (var item in result.Leaderboard)
+            {
+                string oneraw = "Rank " + ((int)item.Position + 1) + ": " + item.DisplayName + " | " + item.StatValue + "\n";
+                LeaderboardStr += oneraw;//combine all display into one string
+
+            }
+            leaderboard.text = LeaderboardStr;
+        }, OnError);
     }
 
-    private void OnLeaderboardCharacterReceived(GetLeaderboardAroundCharacterResult result)
-    {
-        string LeaderboardStr = "";
-        foreach (var item in result.Leaderboard)
-        {
-            string oneraw = "Rank " + ((int)item.Position + 1) + ": " + item.DisplayName + " | " + item.StatValue + "\n";
-            LeaderboardStr += oneraw;//combine all display into one string
-
-        }
-        leaderboard.text = LeaderboardStr;
-    }
     void OnLeaderboardGet(GetLeaderboardResult r)
     {
         string LeaderboardStr = "";

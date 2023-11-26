@@ -200,7 +200,7 @@ public class PFUserMgt : MonoBehaviour
         var loginReq = new LoginWithCustomIDRequest
         {
             CustomId = "Guest",
-            
+            CreateAccount= true
         };
         currentUserName = "Guest";
         PlayFabClientAPI.LoginWithCustomID(loginReq, OnLoginSuccessful, OnError);

@@ -53,6 +53,7 @@ public class GameOverManager : MonoBehaviour
         //check if he level up
         int newXP = playerStats.GetLevelAndXP().xp + xpEarnt;
         int newLevel = playerStats.GetLevelAndXP().level;
+        int goldEarned;
         bool canLevelUp = true;
         while(canLevelUp == true)
         {
@@ -60,6 +61,9 @@ public class GameOverManager : MonoBehaviour
             {
                 newXP -= playerStats.GetLevelAndXP().maxXP;
                 newLevel++;
+                //give gold when leveling up
+                goldEarned = (int)Mathf.Pow(10, newLevel);
+                AddCurrency(goldEarned);
                 canLevelUp = true;
             }
             else
@@ -74,12 +78,17 @@ public class GameOverManager : MonoBehaviour
         levelReadingData.SendJSONAutomatically();
 
         //update highscore if more
-        if (gameController.getScore() > playerValue.currentHighscore)
+        if (gameController.getScore() > playerValue.currentHighscore && playerStats.playerName != "Guest")
         {
             scoreTxt.text += "\nNEW HIGHSCORE!!!";
             leaderboardManager.updateLeaderboardScore(finalScore);
-           
             Invoke("UpdatePlayerRank", 1);
+
+        }
+        //dont update scre
+        else if(playerStats.playerName == "Guest")
+        {
+            rankTxt.text = "Rank not avaliable for being guest, score not uploaded";
         }
         else
         {
@@ -88,14 +97,32 @@ public class GameOverManager : MonoBehaviour
         }
 
     }
-    void UpdatePlayerRank()
+    private void AddCurrency(int amount)
+    {
+        // Specify the request details
+        var request = new AddUserVirtualCurrencyRequest
+        {
+            VirtualCurrency = "GD",
+            Amount = amount
+        };
+
+        // Send the request to add currency to the player
+        PlayFabClientAPI.AddUserVirtualCurrency(request, OnCurrencyAdded, OnError);
+    }
+
+
+    private void OnCurrencyAdded(ModifyUserVirtualCurrencyResult result)
+{
+    Debug.Log("Currency added successfully. New balance: " + result.Balance);
+}
+void UpdatePlayerRank()
     {
         getCurrentPlayerRank();
         Invoke("UpdatePlayerRankTxt", 0.5f);
     }
     void UpdatePlayerRankTxt()
     {
-        rankTxt.text = "currently ranked at positon " + currentRank.ToString();
+        rankTxt.text = "currently ranked at positon " + (currentRank + 1).ToString();
     }
     void OnError(PlayFabError error)
     {
@@ -122,7 +149,7 @@ public class GameOverManager : MonoBehaviour
         {
             if (item.DisplayName == playerValue.currentUsername)
             {
-                currentRank = item.Position + 1;
+                currentRank = item.Position;
                 Debug.Log(item.Position);
             }
         }
