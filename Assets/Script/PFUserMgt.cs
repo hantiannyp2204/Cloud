@@ -146,7 +146,9 @@ public class PFUserMgt : MonoBehaviour
         }
         else if(Application.platform == RuntimePlatform.IPhonePlayer)
         {
+            #if UNITY_IOS
             deviceID = UnityEngine.iOS.Device.vendorIdentifier;
+            #endif
             currentDeviceType = deviceType.IOS;
         }
         else

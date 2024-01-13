@@ -24,9 +24,8 @@ public class PlayerStatsUI : MonoBehaviour
     int totalPlayAmount;
     private void Start()
     {
-        Debug.Log(getPlayAmount());
-        totalPlayAmount = getPlayAmount();
-        playcount.text = "Attempt number:\n" + totalPlayAmount.ToString();
+
+        getPlayAmount();
     }
     public void increasePlayTime()
     {
@@ -52,6 +51,8 @@ public class PlayerStatsUI : MonoBehaviour
                 // Player data value found
                 Debug.Log($"Value: {dataValue.Value}");
                 playAmount = int.Parse(dataValue.Value);
+                totalPlayAmount = playAmount;
+                playcount.text = "Attempt number:\n" + dataValue.Value;
             }
 
         }, result => Debug.Log("ERROR"));

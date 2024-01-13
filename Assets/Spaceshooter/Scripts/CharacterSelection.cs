@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PlayFab;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -42,6 +43,11 @@ public class CharacterSelection : MonoBehaviour {
         }
         Debug.Log(PlayerPrefs.GetString("choosenShip"));
     }
+    public void LogOut()
+    {
+        SceneManager.LoadScene("Login");
+        PlayFabClientAPI.ForgetAllCredentials();
+    }
     public void toggleLeft() {
 
         characters[index].SetActive(false);
@@ -75,6 +81,11 @@ public class CharacterSelection : MonoBehaviour {
             PlayerPrefs.SetInt("SelectedCharacter", index);
             SceneManager.LoadScene("Game");
         }
+
+    }
+    public void RunSocialTab()
+    {
+        SceneManager.LoadScene("SocialTab");
 
     }
     public int getIndex(){

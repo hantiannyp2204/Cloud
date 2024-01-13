@@ -2,12 +2,9 @@ using PlayFab.ClientModels;
 using PlayFab;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEditor.VersionControl;
 using TMPro;
 using Unity.VisualScripting;
-using static UnityEditor.Progress;
 
 public class LeaderboardManager : MonoBehaviour
 {

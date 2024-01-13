@@ -4,9 +4,7 @@ using UnityEngine;
 using PlayFab;
 using PlayFab.EconomyModels;
 using PlayFab.ClientModels;
-using UnityEditor.PackageManager;
 using System;
-using static UnityEditor.Progress;
 using TMPro;
 
 public class UserInventory : MonoBehaviour

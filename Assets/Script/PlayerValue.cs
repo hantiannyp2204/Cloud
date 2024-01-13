@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditor.PackageManager;
 using UnityEngine.SocialPlatforms.Impl;
 using PlayFab.MultiplayerModels;
 using TMPro;
@@ -34,6 +33,8 @@ public class PlayerValue : MonoBehaviour
 
         PlayFabClientAPI.GetPlayerProfile(request, OnGetUserAccountInfoSuccess, OnError);
         
+
+
     }
 
     void OnGetUserAccountInfoSuccess(GetPlayerProfileResult result)

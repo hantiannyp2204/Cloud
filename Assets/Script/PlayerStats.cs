@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using PlayFab;
 using System.Security.Cryptography;
 using PlayFab.ClientModels;
-using UnityEditor.PackageManager;
 using UnityEngine.UIElements;
 
 [System.Serializable]
