@@ -9,7 +9,7 @@ using System;
 
 public class FriendManager : MonoBehaviour
 {
-    [SerializeField] GameObject FriendPrefab,PendingPrefab,RequestPrefab, displayList;
+    [SerializeField] GameObject FriendPrefab,PendingPrefab,RequestPrefab, displayListContent;
     [SerializeField] TextMeshProUGUI leaderboarddisplay;
     [SerializeField] TMP_InputField tgtFriend, tgtunfrnd;
     List<FriendInfo> _friends = null;
@@ -19,6 +19,10 @@ public class FriendManager : MonoBehaviour
     private void Start()
     {
         GetUserAccountInfo();
+    }
+    public void GoToMain()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
     void GetUserAccountInfo()
     {
@@ -34,9 +38,9 @@ public class FriendManager : MonoBehaviour
     {
         //clean all prefab if located
         // Iterate through each child and destroy it
-        for (int i = displayList.transform.childCount - 1; i >= 0; i--)
+        for (int i = displayListContent.transform.childCount - 1; i >= 0; i--)
         {
-            Transform child = displayList.transform.GetChild(i);
+            Transform child = displayListContent.transform.GetChild(i);
             Destroy(child.gameObject);
         }
         friendsCache.ForEach(f => {
@@ -46,7 +50,7 @@ public class FriendManager : MonoBehaviour
                     if (f.Tags.Contains("friend"))
                     {
                         GameObject requestPrefab = Instantiate(FriendPrefab);
-                        requestPrefab.transform.parent = displayList.transform;
+                        requestPrefab.transform.parent = displayListContent.transform;
                         //setting the Name placeholder to name of frined
                         requestPrefab.transform.Find("Name").GetComponent<TMP_Text>().text = f.TitleDisplayName;
                         requestPrefab.GetComponent<RequestData>().RequesteeID = f.FriendPlayFabId;
@@ -56,7 +60,7 @@ public class FriendManager : MonoBehaviour
                     if (f.Tags.Contains("requestee"))
                     {
                         GameObject requestPrefab = Instantiate(PendingPrefab);
-                        requestPrefab.transform.parent = displayList.transform;
+                        requestPrefab.transform.parent = displayListContent.transform;
                         //setting the Name placeholder to name of frined
                         requestPrefab.transform.Find("Name").GetComponent<TMP_Text>().text = f.TitleDisplayName;
                         requestPrefab.GetComponent<RequestData>().RequesteeID = f.FriendPlayFabId;
@@ -66,7 +70,7 @@ public class FriendManager : MonoBehaviour
                     if (f.Tags.Contains("requester"))
                     {
                         GameObject requestPrefab = Instantiate(RequestPrefab);
-                        requestPrefab.transform.parent = displayList.transform;
+                        requestPrefab.transform.parent = displayListContent.transform;
                         //setting the Name placeholder to name of frined
                         requestPrefab.transform.Find("Name").GetComponent<TMP_Text>().text = f.TitleDisplayName;
                         requestPrefab.GetComponent<RequestData>().RequesteeID = f.FriendPlayFabId;
@@ -179,16 +183,51 @@ public class FriendManager : MonoBehaviour
     //Friend Leaderboard Code
     public void OnGetFriendLB()
     {
+        List<string> friendID = new();
         PlayFabClientAPI.GetFriendLeaderboard(
         new GetFriendLeaderboardRequest { StatisticName = "highscore", MaxResultsCount = 10 },
         r => {
-            leaderboarddisplay.text = "Friends LB\n";
-            foreach (var item in r.Leaderboard)
+            //get all friends with "Friend" tags
+            PlayFabClientAPI.GetFriendsList(new GetFriendsListRequest
             {
-                string onerow = item.Position + "/" + item.DisplayName + "/" + item.StatValue + "\n";
-                Debug.Log(onerow);
-                leaderboarddisplay.text += onerow;
+                // ExternalPlatformFriends = false,
+                // XboxToken = null
+            }, 
+            result =>
+            {
+                //This array list stores all friend's name with tags "Friend"
+                
+                _friends = result.Friends;
+                _friends.ForEach(f => { 
+                    if(f.Tags.Contains("friend"))
+                    {
+                        Debug.Log("plus one");
+                        friendID.Add(f.FriendPlayFabId);
+                    }
+
+                    //only print out frineds with same name as frinedArray
+                    Debug.Log(friendID.Count);
+                    leaderboarddisplay.text = "Friends LB\n";
+                    foreach (var leaderboardFriend in r.Leaderboard)
+                    {
+                        for (int x = 0; x < friendID.Count; x++)
+                        {
+                            if (leaderboardFriend.PlayFabId == friendID[x])
+                            {
+                                string onerow = leaderboardFriend.Position + " | " + leaderboardFriend.DisplayName + " | " + leaderboardFriend.StatValue + "\n";
+                                Debug.Log("Tag: " + leaderboardFriend.Profile.Tags);
+                                leaderboarddisplay.text += onerow;
+                            }
+                        }
+
+                    }
+                });
+
             }
+            , result => Debug.Log("error in code dah")
+            );
+
+            
         }, DisplayPlayFabError);
     }
 
