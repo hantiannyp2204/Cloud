@@ -11,27 +11,18 @@ public class FriendManager : MonoBehaviour
 {
     [SerializeField] GameObject FriendPrefab,PendingPrefab,RequestPrefab, displayListContent;
     [SerializeField] TextMeshProUGUI leaderboarddisplay;
-    [SerializeField] TMP_InputField tgtFriend, tgtunfrnd;
+    [SerializeField] TMP_InputField tgtFriend;
     List<FriendInfo> _friends = null;
     enum FriendIdType { PlayFabId, Username, Email, DisplayName };
     public enum ListType { Friends,Pending,Request };
     string myPlayFabID;
     private void Start()
     {
-        GetUserAccountInfo();
+        myPlayFabID = MyPlayFab.Instance.myPlayFabMasterID;
     }
     public void GoToMain()
     {
         SceneManager.LoadScene("MainMenu");
-    }
-    void GetUserAccountInfo()
-    {
-        var request = new GetPlayerProfileRequest
-        {
-        };
-
-        PlayFabClientAPI.GetPlayerProfile(request, result => { Debug.Log(myPlayFabID); myPlayFabID = result.PlayerProfile.PlayerId; Debug.Log(myPlayFabID); GetFriends(0); }, Errorresult => { Debug.Log(Errorresult); });
-
     }
     //Display Friend Code
     void DisplayFriends(List<FriendInfo> friendsCache, int listType)
@@ -154,10 +145,6 @@ public class FriendManager : MonoBehaviour
             }
         };
         PlayFabClientAPI.ExecuteCloudScript(request,result=> Debug.Log(myPlayFabID + " sent friend request to "+ friendPlayID), result => Debug.Log("Some error in code dahh"));
-    }
-    public void OnUnFriend()
-    {
-        RemoveFriend(tgtunfrnd.text);
     }
     //Remove Friend Code
     void RemoveFriend(string friendName)

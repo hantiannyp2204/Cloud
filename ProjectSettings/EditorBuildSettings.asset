@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SocialTab.unity
     guid: 099e706b2b2c81042b048b3ba3a8c1e5
+  - enabled: 1
+    path: Assets/Scenes/ClanTab.unity
+    guid: e8266ffc8b7a31d49aa0e03449bd2b21
   m_configObjects: {}

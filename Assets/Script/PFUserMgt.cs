@@ -194,9 +194,7 @@ public class PFUserMgt : MonoBehaviour
         }
         Debug.Log(currentDeviceType.ToString());
 
-
     }
-
     public void OnButtonLoginAsGuest()
     {
         var loginReq = new LoginWithCustomIDRequest
@@ -227,6 +225,7 @@ public class PFUserMgt : MonoBehaviour
 
             PlayFabClientAPI.UpdateUserTitleDisplayName(req, result => Debug.Log(""), OnError);
         }
+        MyPlayFab.Instance.GetUserAccountInfo();
         SceneManager.LoadScene("MainMenu");
     }
    

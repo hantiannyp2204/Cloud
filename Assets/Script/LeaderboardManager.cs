@@ -22,7 +22,6 @@ public class LeaderboardManager : MonoBehaviour
     {
         GetPlayerProfileRequest request = new GetPlayerProfileRequest { };
         PlayFabClientAPI.GetPlayerProfile(request, GetPlayerPlayfabID, result=>Debug.Log("Get user data error"));
-
         Title.text = "Leaderboard (Global)";
         GetLeaderboard();
        

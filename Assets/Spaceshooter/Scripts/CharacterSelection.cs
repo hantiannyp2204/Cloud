@@ -88,6 +88,11 @@ public class CharacterSelection : MonoBehaviour {
         SceneManager.LoadScene("SocialTab");
 
     }
+    public void RunClanTab()
+    {
+        SceneManager.LoadScene("ClanTab");
+
+    }
     public int getIndex(){
         return index;
     }
