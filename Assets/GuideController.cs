@@ -17,21 +17,21 @@ using UnityEngine.UIElements;
 public class GuideController : MonoBehaviour
 {
     //for inputs
-    [SerializeField] TMP_InputField GuideName;
-    [SerializeField] GameObject Display;
-
+    [SerializeField] TMP_InputField guideName;
+    [SerializeField] TMP_InputField guideDescription;
+    [SerializeField] GameObject display;
+    [SerializeField] ClanInfo clanInfo;
     //For prefabs
-    [SerializeField] GameObject ClanPrefab;
+    [SerializeField] GameObject clanPrefab;
 
-    [SerializeField] GameObject ClanInfo;
     //player info
     string PlayerTitleID;
 
     //ghost memeber info
-    PlayFab.GroupsModels.EntityKey GhostEntity = EntityKeyMaker("12BCA4C50B6DAE79", "title_player_account");
+    PlayFab.GroupsModels.EntityKey ghostEntity = EntityKeyMaker("12BCA4C50B6DAE79", "title_player_account");
 
-    public readonly HashSet<KeyValuePair<string, string>> EntityGroupPairs = new HashSet<KeyValuePair<string, string>>();
-    public readonly Dictionary<string, string> GroupNameById = new Dictionary<string, string>();
+    public readonly HashSet<KeyValuePair<string, string>> entityGroupPairs = new HashSet<KeyValuePair<string, string>>();
+    public readonly Dictionary<string, string> groupNameById = new Dictionary<string, string>();
 
 
 
@@ -63,9 +63,9 @@ public class GuideController : MonoBehaviour
             // Deserialize the JSON string into a GroupData object
             GroupData groupData = JsonUtility.FromJson<GroupData>(result.FunctionResult.ToString());
             //claer all existing prefabs first
-            for (int i = Display.transform.childCount - 1; i >= 0; i--)
+            for (int i = display.transform.childCount - 1; i >= 0; i--)
             {
-                Transform child = Display.transform.GetChild(i);
+                Transform child = display.transform.GetChild(i);
                 Destroy(child.gameObject);
             }
             if (groupData != null && groupData.Groups != null)
@@ -75,7 +75,7 @@ public class GuideController : MonoBehaviour
                 {
                     Debug.Log($"GroupName: {group.GroupName}, GroupId: {group.Group.Id}");
                     //spawn the prefab
-                    GameObject currentClan = Instantiate(ClanPrefab, Display.transform);
+                    GameObject currentClan = Instantiate(clanPrefab, display.transform);
 
                     //set the name
                     TMP_Text clanName = currentClan.transform.Find("Clan name").GetComponent<TMP_Text>();
@@ -86,8 +86,24 @@ public class GuideController : MonoBehaviour
                     //set the Description
                     var getRequest = new GetObjectsRequest { Entity = new PlayFab.DataModels.EntityKey { Id = group.Group.Id, Type = "group" } };
                     PlayFabDataAPI.GetObjects(getRequest,
-                        result => { Debug.Log(result.Objects); },
+                         result =>
+                         {
+
+                             foreach (var objectData in result.Objects)
+                             {
+                                 if (objectData.Key == "Description")
+                                 {
+                                     TMP_Text clanDescription = currentClan.transform.Find("Clan description").GetComponent<TMP_Text>();
+                                     clanDescription.text = objectData.Value.DataObject.ToString();
+                                     Debug.Log(objectData.Value.DataObject.ToString());
+                                     currentClan.transform.GetComponent<ClanPrefab>().ClanDescription = clanDescription.text;
+                                 }
+
+                             }
+                         },
                         result => Debug.Log(result));
+                    //set the group ID
+                    currentClan.transform.GetComponent<ClanPrefab>().ClanGroupID = group.Group.Id;
                 }
             }
             else
@@ -127,9 +143,9 @@ public class GuideController : MonoBehaviour
     private void OnListGroups(ListMembershipResponse response)
     {
         //claer all existing prefabs first
-        for (int i = Display.transform.childCount - 1; i >= 0; i--)
+        for (int i = display.transform.childCount - 1; i >= 0; i--)
         {
-            Transform child = Display.transform.GetChild(i);
+            Transform child = display.transform.GetChild(i);
             Destroy(child.gameObject);
         }
         var prevRequest = (ListMembershipRequest)response.Request;
@@ -138,7 +154,7 @@ public class GuideController : MonoBehaviour
         {
             Debug.Log($"GroupName: {group.GroupName}, GroupId: {group.Group.Id}");
             //spawn the prefab
-            GameObject currentClan = Instantiate(ClanPrefab, Display.transform);
+            GameObject currentClan = Instantiate(clanPrefab, display.transform);
 
             //set the name
             TMP_Text clanName = currentClan.transform.Find("Clan name").GetComponent<TMP_Text>();
@@ -151,34 +167,38 @@ public class GuideController : MonoBehaviour
             PlayFabDataAPI.GetObjects(getRequest,
                  result =>
                  {
-                     Debug.Log("Objects retrieved successfully:");
+
                      foreach (var objectData in result.Objects)
                      {
                          if(objectData.Key == "Description")
                          {
                              TMP_Text clanDescription = currentClan.transform.Find("Clan description").GetComponent<TMP_Text>();
                              clanDescription.text = objectData.Value.DataObject.ToString();
-                             currentClan.transform.GetComponent<ClanPrefab>().ClanDescription = clanDescription.text;
+                            Debug.Log(objectData.Value.DataObject.ToString());
+                            currentClan.transform.GetComponent<ClanPrefab>().ClanDescription = clanDescription.text;
                          }
    
                      }
                  },
                 result => Debug.Log(result));
+            //set the group ID
+            currentClan.transform.GetComponent<ClanPrefab>().ClanGroupID = group.Group.Id;
         }
     }
-    public void CreateDescription(string GroupID)
+    public void CreateDescription(string description,string GroupID)
     {
-        //change here
-        var data = "Welcome to Yee Hong's offical fan club page";
-
+        if(description == "")
+        {
+            description = "This guild has no description";
+        }
         var dataList = new List<SetObject>()
         {
             new SetObject()
             {
                 ObjectName = "Description",
-                DataObject = data
-            },
-            // A free-tier customer may store up to 3 objects on each entity
+                //input the description
+                DataObject = description
+            }
         };
         PlayFabDataAPI.SetObjects(new SetObjectsRequest()
         {
@@ -191,7 +211,7 @@ public class GuideController : MonoBehaviour
     public void CreateGroup()
     {
         // A player-controlled entity creates a new group
-        var request = new CreateGroupRequest { GroupName = GuideName.text, Entity = EntityKeyMaker(MyPlayFab.Instance.myPlayFabTitleID, "title_player_account") };
+        var request = new CreateGroupRequest { GroupName = guideName.text, Entity = EntityKeyMaker(MyPlayFab.Instance.myPlayFabTitleID, "title_player_account") };
         PlayFabGroupsAPI.CreateGroup(request, OnCreateGroup, OnSharedError);
     }
     private void OnCreateGroup(CreateGroupResponse response)
@@ -199,20 +219,20 @@ public class GuideController : MonoBehaviour
         Debug.Log("Group Created: " + response.GroupName + " - " + response.Group.Id);
 
         var prevRequest = (CreateGroupRequest)response.Request;
-        EntityGroupPairs.Add(new KeyValuePair<string, string>(prevRequest.Entity.Id, response.Group.Id));
-        GroupNameById[response.Group.Id] = response.GroupName;
+        entityGroupPairs.Add(new KeyValuePair<string, string>(prevRequest.Entity.Id, response.Group.Id));
+        groupNameById[response.Group.Id] = response.GroupName;
 
         //add a description
-        CreateDescription(response.Group.Id);
+        CreateDescription(guideDescription.text,response.Group.Id);
 
         //add ghost memeber
 
-        var request = new ApplyToGroupRequest { Group = EntityKeyMaker(response.Group.Id, "group"), Entity = GhostEntity };
+        var request = new ApplyToGroupRequest { Group = EntityKeyMaker(response.Group.Id, "group"), Entity = ghostEntity };
         PlayFabGroupsAPI.ApplyToGroup(request, result => {
             var prevRequest = (ApplyToGroupRequest)result.Request;
 
             // Presumably, this would be part of a separate process where the recipient reviews and accepts the request
-            var request = new AcceptGroupApplicationRequest { Group = prevRequest.Group, Entity = GhostEntity };
+            var request = new AcceptGroupApplicationRequest { Group = prevRequest.Group, Entity = ghostEntity };
             PlayFabGroupsAPI.AcceptGroupApplication(request, result => {
                 var prevRequest = (AcceptGroupApplicationRequest)result.Request;
                 Debug.Log("Entity Added to Group: " + prevRequest.Entity.Id + " to " + prevRequest.Group.Id);
@@ -222,7 +242,7 @@ public class GuideController : MonoBehaviour
                 PlayFabGroupsAPI.CreateRole(AddGhostRole, result => {
                     //change ghost member's role to ghost (it onyl accept a list
                     var MembersToChange = new List<PlayFab.GroupsModels.EntityKey>();
-                    MembersToChange.Add(GhostEntity);
+                    MembersToChange.Add(ghostEntity);
                     var changeRole = new ChangeMemberRoleRequest { Group = EntityKeyMaker(response.Group.Id, "group"), Members = MembersToChange, OriginRoleId = "members", DestinationRoleId = "ghost" };
                     PlayFabGroupsAPI.ChangeMemberRole(changeRole, result => Debug.Log("Changed member to Ghost"), result => Debug.Log(result));
                 }, result => Debug.Log(result));
@@ -244,11 +264,11 @@ public class GuideController : MonoBehaviour
         Debug.Log("Group Deleted: " + prevRequest.Group.Id);
 
         var temp = new HashSet<KeyValuePair<string, string>>();
-        foreach (var each in EntityGroupPairs)
+        foreach (var each in entityGroupPairs)
             if (each.Value != prevRequest.Group.Id)
                 temp.Add(each);
-        EntityGroupPairs.IntersectWith(temp);
-        GroupNameById.Remove(prevRequest.Group.Id);
+        entityGroupPairs.IntersectWith(temp);
+        groupNameById.Remove(prevRequest.Group.Id);
     }
 
     public void InviteToGroup(string groupId, PlayFab.GroupsModels.EntityKey entityKey)
@@ -269,27 +289,26 @@ public class GuideController : MonoBehaviour
     {
         var prevRequest = (AcceptGroupInvitationRequest)response.Request;
         Debug.Log("Entity Added to Group: " + prevRequest.Entity.Id + " to " + prevRequest.Group.Id);
-        EntityGroupPairs.Add(new KeyValuePair<string, string>(prevRequest.Entity.Id, prevRequest.Group.Id));
+        entityGroupPairs.Add(new KeyValuePair<string, string>(prevRequest.Entity.Id, prevRequest.Group.Id));
     }
-    public void ApplyToGroup(string groupId, PlayFab.GroupsModels.EntityKey entityKey)
+    public void ApplyToGroup()
     {
         // A player-controlled entity applies to join an existing group (of which they are not already a member)
-        var request = new ApplyToGroupRequest { Group = EntityKeyMaker(groupId, "group"), Entity = entityKey };
-        PlayFabGroupsAPI.ApplyToGroup(request, OnApply, OnSharedError);
+        var request = new ApplyToGroupRequest { Group = EntityKeyMaker(clanInfo.GroupID, "group"), Entity = EntityKeyMaker(MyPlayFab.Instance.myPlayFabTitleID,"title_player_account") };
+        PlayFabGroupsAPI.ApplyToGroup(request, result => Debug.Log(result), result => Debug.Log(result));
     }
-
-    public void OnApply(ApplyToGroupResponse response)
+    public void AcceptUser(string _playerID)
     {
-        var prevRequest = (ApplyToGroupRequest)response.Request;
 
-        // Presumably, this would be part of a separate process where the recipient reviews and accepts the request
-        var request = new AcceptGroupApplicationRequest {Group = prevRequest.Group, Entity = prevRequest.Entity };
-        PlayFabGroupsAPI.AcceptGroupApplication(request, OnAcceptApplication, OnSharedError);
+        var request = new AcceptGroupApplicationRequest { Group = EntityKeyMaker(clanInfo.GroupID, "group"), Entity = EntityKeyMaker(_playerID, "title_player_account") };
+        PlayFabGroupsAPI.AcceptGroupApplication(request, result => Debug.Log(result), result => Debug.Log(result));
+
     }
-    public void OnAcceptApplication(PlayFab.GroupsModels.EmptyResponse response)
+    public void DeclineUser(string _playerID)
     {
-        var prevRequest = (AcceptGroupApplicationRequest)response.Request;
-        Debug.Log("Entity Added to Group: " + prevRequest.Entity.Id + " to " + prevRequest.Group.Id);
+        //accpet then kick
+        var request = new AcceptGroupApplicationRequest { Group = EntityKeyMaker(clanInfo.GroupID, "group"), Entity = EntityKeyMaker(_playerID, "title_player_account") };
+        PlayFabGroupsAPI.AcceptGroupApplication(request, result => { KickMember(clanInfo.GroupID, EntityKeyMaker(_playerID, "title_player_account")); }, result => Debug.Log(result));
     }
     public void KickMember(string groupId, PlayFab.GroupsModels.EntityKey entityKey)
     {
@@ -303,6 +322,16 @@ public class GuideController : MonoBehaviour
         var prevRequest = (RemoveMembersRequest)response.Request;
 
         Debug.Log("Entity kicked from Group: " + prevRequest.Members[0].Id + " to " + prevRequest.Group.Id);
-        EntityGroupPairs.Remove(new KeyValuePair<string, string>(prevRequest.Members[0].Id, prevRequest.Group.Id));
+        entityGroupPairs.Remove(new KeyValuePair<string, string>(prevRequest.Members[0].Id, prevRequest.Group.Id));
+    }
+    private void OnEnable()
+    {
+        GameEvent.instance.AcceptClanJoining.AddListener(AcceptUser);
+        GameEvent.instance.DeclineClanJoining.AddListener(DeclineUser);
+    }
+    private void OnDisable()
+    {
+        GameEvent.instance.AcceptClanJoining.RemoveListener(AcceptUser);
+        GameEvent.instance.DeclineClanJoining.RemoveListener(DeclineUser);
     }
 }

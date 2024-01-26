@@ -10,12 +10,14 @@ public class MyPlayFab : MonoBehaviour
 
     private void Awake()
     {
+     
         if (Instance != null && Instance!= this)
         {
             Destroy(gameObject);
         }
         else
         {
+            //our new Start fucniton (init)
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
@@ -26,7 +28,7 @@ public class MyPlayFab : MonoBehaviour
         GetUserAccountInfo();
 
     }
-    public void GetPlayerProfileRequest()
+    void GetPlayerProfileRequest()
     {
         var request = new GetPlayerProfileRequest
         {
@@ -34,14 +36,13 @@ public class MyPlayFab : MonoBehaviour
 
         PlayFabClientAPI.GetPlayerProfile(request, result => { myPlayFabMasterID = result.PlayerProfile.PlayerId; Debug.Log(myPlayFabMasterID); }, Errorresult => { Debug.Log(Errorresult); });
     }
-    public void GetUserAccountInfo()
+    void GetUserAccountInfo()
     {
         var request = new GetAccountInfoRequest
         {
         };
 
-        PlayFabClientAPI.GetAccountInfo(request, result => {  myPlayFabTitleID = result.AccountInfo.TitleInfo.TitlePlayerAccount.Id; 
-            Debug.Log(myPlayFabMasterID); }, 
+        PlayFabClientAPI.GetAccountInfo(request, result => {  myPlayFabTitleID = result.AccountInfo.TitleInfo.TitlePlayerAccount.Id; }, 
             Errorresult => { Debug.Log(Errorresult); });
     }
 }

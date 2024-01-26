@@ -225,7 +225,7 @@ public class PFUserMgt : MonoBehaviour
 
             PlayFabClientAPI.UpdateUserTitleDisplayName(req, result => Debug.Log(""), OnError);
         }
-        MyPlayFab.Instance.GetUserAccountInfo();
+        MyPlayFab.Instance.SetAccountInfos();
         SceneManager.LoadScene("MainMenu");
     }
    

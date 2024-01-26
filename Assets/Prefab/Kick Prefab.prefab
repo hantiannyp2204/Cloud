@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 2905361599909892190}
   - component: {fileID: 1301023074432843264}
   m_Layer: 5
-  m_Name: Cancel Btn
+  m_Name: Kick Btn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
