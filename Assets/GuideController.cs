@@ -9,12 +9,21 @@ using UnityEngine.SceneManagement;
 using PlayFab.ClientModels;
 using Unity.VisualScripting;
 using System;
+using PlayFab.DataModels;
+using PlayFab.PfEditor.EditorModels;
+using static GuideController;
+using UnityEngine.UIElements;
 
 public class GuideController : MonoBehaviour
 {
     //for inputs
     [SerializeField] TMP_InputField GuideName;
-    [SerializeField] TMP_Text txtDisplay;
+    [SerializeField] GameObject Display;
+
+    //For prefabs
+    [SerializeField] GameObject ClanPrefab;
+
+    [SerializeField] GameObject ClanInfo;
     //player info
     string PlayerTitleID;
 
@@ -51,17 +60,34 @@ public class GuideController : MonoBehaviour
         };
         PlayFabClientAPI.ExecuteCloudScript(request, result => {
 
-            txtDisplay.text = "";
             // Deserialize the JSON string into a GroupData object
             GroupData groupData = JsonUtility.FromJson<GroupData>(result.FunctionResult.ToString());
-
+            //claer all existing prefabs first
+            for (int i = Display.transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = Display.transform.GetChild(i);
+                Destroy(child.gameObject);
+            }
             if (groupData != null && groupData.Groups != null)
             {
                 // Iterate through the Groups and log the GroupNames
                 foreach (var group in groupData.Groups)
                 {
-                    Debug.Log("GroupName: " + group.GroupName);
-                    txtDisplay.text += group.GroupName+"\n";
+                    Debug.Log($"GroupName: {group.GroupName}, GroupId: {group.Group.Id}");
+                    //spawn the prefab
+                    GameObject currentClan = Instantiate(ClanPrefab, Display.transform);
+
+                    //set the name
+                    TMP_Text clanName = currentClan.transform.Find("Clan name").GetComponent<TMP_Text>();
+                    clanName.text = group.GroupName;
+                    //set the name in the ClanPrefab.cs
+                    currentClan.transform.GetComponent<ClanPrefab>().ClanName = clanName.text;
+
+                    //set the Description
+                    var getRequest = new GetObjectsRequest { Entity = new PlayFab.DataModels.EntityKey { Id = group.Group.Id, Type = "group" } };
+                    PlayFabDataAPI.GetObjects(getRequest,
+                        result => { Debug.Log(result.Objects); },
+                        result => Debug.Log(result));
                 }
             }
             else
@@ -81,6 +107,16 @@ public class GuideController : MonoBehaviour
     public class GroupInfo
     {
         public string GroupName;
+        public GroupDetails Group;
+        // Add other properties as needed
+    }
+
+    [System.Serializable]
+    public class GroupDetails
+    {
+        public string Id;
+        public string Type;
+        public string TypeString;
         // Add other properties as needed
     }
     public void ListMyGroups()
@@ -90,16 +126,68 @@ public class GuideController : MonoBehaviour
     }
     private void OnListGroups(ListMembershipResponse response)
     {
-        txtDisplay.text = "";
-        var prevRequest = (ListMembershipRequest)response.Request;
-        foreach (var pair in response.Groups)
+        //claer all existing prefabs first
+        for (int i = Display.transform.childCount - 1; i >= 0; i--)
         {
-            GroupNameById[pair.Group.Id] = pair.GroupName;
-            txtDisplay.text += pair.GroupName + "\n";
-            EntityGroupPairs.Add(new KeyValuePair<string, string>(prevRequest.Entity.Id, pair.Group.Id));
+            Transform child = Display.transform.GetChild(i);
+            Destroy(child.gameObject);
+        }
+        var prevRequest = (ListMembershipRequest)response.Request;
+        // Iterate through the Groups and log the GroupNames
+        foreach (var group in response.Groups)
+        {
+            Debug.Log($"GroupName: {group.GroupName}, GroupId: {group.Group.Id}");
+            //spawn the prefab
+            GameObject currentClan = Instantiate(ClanPrefab, Display.transform);
+
+            //set the name
+            TMP_Text clanName = currentClan.transform.Find("Clan name").GetComponent<TMP_Text>();
+            clanName.text = group.GroupName;
+            //set the name in the ClanPrefab.cs
+            currentClan.transform.GetComponent<ClanPrefab>().ClanName = clanName.text;
+
+            //set the Description
+            var getRequest = new GetObjectsRequest { Entity = new PlayFab.DataModels.EntityKey { Id = group.Group.Id, Type = "group" } };
+            PlayFabDataAPI.GetObjects(getRequest,
+                 result =>
+                 {
+                     Debug.Log("Objects retrieved successfully:");
+                     foreach (var objectData in result.Objects)
+                     {
+                         if(objectData.Key == "Description")
+                         {
+                             TMP_Text clanDescription = currentClan.transform.Find("Clan description").GetComponent<TMP_Text>();
+                             clanDescription.text = objectData.Value.DataObject.ToString();
+                             currentClan.transform.GetComponent<ClanPrefab>().ClanDescription = clanDescription.text;
+                         }
+   
+                     }
+                 },
+                result => Debug.Log(result));
         }
     }
+    public void CreateDescription(string GroupID)
+    {
+        //change here
+        var data = "Welcome to Yee Hong's offical fan club page";
 
+        var dataList = new List<SetObject>()
+        {
+            new SetObject()
+            {
+                ObjectName = "Description",
+                DataObject = data
+            },
+            // A free-tier customer may store up to 3 objects on each entity
+        };
+        PlayFabDataAPI.SetObjects(new SetObjectsRequest()
+        {
+            Entity = new PlayFab.DataModels.EntityKey { Id = GroupID, Type = "group" }, // Saved from GetEntityToken, or a specified key created from a titlePlayerId, CharacterId, etc
+            Objects = dataList,
+        }, (setResult) => {
+            Debug.Log(setResult.ProfileVersion);
+        }, result=>Debug.Log(result));
+    }
     public void CreateGroup()
     {
         // A player-controlled entity creates a new group
@@ -114,6 +202,8 @@ public class GuideController : MonoBehaviour
         EntityGroupPairs.Add(new KeyValuePair<string, string>(prevRequest.Entity.Id, response.Group.Id));
         GroupNameById[response.Group.Id] = response.GroupName;
 
+        //add a description
+        CreateDescription(response.Group.Id);
 
         //add ghost memeber
 
