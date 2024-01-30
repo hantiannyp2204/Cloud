@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor.PackageManager;
 using System;
+using System.Linq;
 
 public class FriendManager : MonoBehaviour
 {
@@ -120,6 +121,9 @@ public class FriendManager : MonoBehaviour
         var requestFriendID = new GetAccountInfoRequest{TitleDisplayName = tgtFriend.text };
         PlayFabClientAPI.GetAccountInfo(requestFriendID,result=> {
             friendPlayID = result.AccountInfo.PlayFabId;
+            var GetTitleIDReq = new GetAccountInfoRequest {PlayFabId = result.AccountInfo.PlayFabId };
+            PlayFabClientAPI.GetAccountInfo(GetTitleIDReq, result => Debug.Log(result.AccountInfo.TitleInfo.TitlePlayerAccount.Id), result => Debug.Log(result));
+            
             Debug.Log("friend's id is: " + result.AccountInfo.PlayFabId);
             if (myPlayFabID != null && friendPlayID != null)
             {

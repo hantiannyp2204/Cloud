@@ -10,12 +10,12 @@ using PlayFab.PfEditor.EditorModels;
 public class GroupRequest : MonoBehaviour
 {
     public string playerID;
+    public string playerName;
     [SerializeField] TMP_Text Name;
 
-    string playerName;
     private void Start()
     {
-        Name.text = playerID;
+        Name.text = playerName;
     }
     public void AcceptPlayerToClan()
     {
@@ -38,5 +38,8 @@ public class GroupRequest : MonoBehaviour
             Debug.Log(result.Profile.Lineage.MasterPlayerAccountId);
         }, result => Debug.Log(result));
     }
-
+    public void SetDisplayName(string newName)
+    {
+        Name.text = newName;
+    }
 }

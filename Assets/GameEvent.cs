@@ -11,6 +11,7 @@ public class GameEvent : MonoBehaviour
     public UnityEvent <string,string,string> showClanDetails;
     public UnityEvent<string> AcceptClanJoining;
     public UnityEvent<string> DeclineClanJoining;
+    public UnityEvent<PlayFab.GroupsModels.EntityKey> KickPlayer;
     private void Awake()
     {
         //1. make this class a singleton
@@ -24,9 +25,10 @@ public class GameEvent : MonoBehaviour
         showClanDetails = new();
         AcceptClanJoining = new();
         DeclineClanJoining = new();
+        KickPlayer = new();
     }
 
-    //4. head to the GO that contains the original fucntion (This case it is ClanInfo.cs, it the fucntion that spawns the ClanInfo GO, which is what we want)
+    //4. head to the GO that contains the original fucntion (This case it is ClanInfo.cs, it has the fucntion that spawns the ClanInfo GO, which is what we want)
     //If the GO has no script, make a script for it
 
 }

@@ -13,6 +13,8 @@ using PlayFab.DataModels;
 using PlayFab.PfEditor.EditorModels;
 using static GuideController;
 using UnityEngine.UIElements;
+using PlayFab.ProfilesModels;
+using System.Security.Principal;
 
 public class GuideController : MonoBehaviour
 {
@@ -295,6 +297,9 @@ public class GuideController : MonoBehaviour
     {
         // A player-controlled entity applies to join an existing group (of which they are not already a member)
         var request = new ApplyToGroupRequest { Group = EntityKeyMaker(clanInfo.GroupID, "group"), Entity = EntityKeyMaker(MyPlayFab.Instance.myPlayFabTitleID,"title_player_account") };
+
+        //reset the current guild screen
+        GameEvent.instance.showClanDetails.Invoke(clanInfo.GroupName, clanInfo.GroupDescription, clanInfo.GroupID);
         PlayFabGroupsAPI.ApplyToGroup(request, result => Debug.Log(result), result => Debug.Log(result));
     }
     public void AcceptUser(string _playerID)
@@ -308,11 +313,15 @@ public class GuideController : MonoBehaviour
     {
         //accpet then kick
         var request = new AcceptGroupApplicationRequest { Group = EntityKeyMaker(clanInfo.GroupID, "group"), Entity = EntityKeyMaker(_playerID, "title_player_account") };
-        PlayFabGroupsAPI.AcceptGroupApplication(request, result => { KickMember(clanInfo.GroupID, EntityKeyMaker(_playerID, "title_player_account")); }, result => Debug.Log(result));
+        PlayFabGroupsAPI.AcceptGroupApplication(request, result => { KickMember(EntityKeyMaker(_playerID, "title_player_account")); }, result => Debug.Log(result));
     }
-    public void KickMember(string groupId, PlayFab.GroupsModels.EntityKey entityKey)
+    public void OnLeaveButtonPressed()
     {
-        var request = new RemoveMembersRequest { Group = EntityKeyMaker(groupId, "group"), Members = new List<PlayFab.GroupsModels.EntityKey> { entityKey } };
+        KickMember(EntityKeyMaker(MyPlayFab.Instance.myPlayFabTitleID, "title_player_account"));
+    }    
+    public void KickMember( PlayFab.GroupsModels.EntityKey entityKey)
+    {
+        var request = new RemoveMembersRequest { Group = EntityKeyMaker(clanInfo.GroupID, "group"), Members = new List<PlayFab.GroupsModels.EntityKey> { entityKey } };
         PlayFabGroupsAPI.RemoveMembers(request, OnKickMembers, OnSharedError);
 
        
@@ -323,15 +332,20 @@ public class GuideController : MonoBehaviour
 
         Debug.Log("Entity kicked from Group: " + prevRequest.Members[0].Id + " to " + prevRequest.Group.Id);
         entityGroupPairs.Remove(new KeyValuePair<string, string>(prevRequest.Members[0].Id, prevRequest.Group.Id));
+
+        //reset the current guild screen
+        GameEvent.instance.showClanDetails.Invoke(clanInfo.GroupName, clanInfo.GroupDescription, prevRequest.Group.Id);
     }
     private void OnEnable()
     {
         GameEvent.instance.AcceptClanJoining.AddListener(AcceptUser);
         GameEvent.instance.DeclineClanJoining.AddListener(DeclineUser);
+        GameEvent.instance.KickPlayer.AddListener(KickMember);
     }
     private void OnDisable()
     {
         GameEvent.instance.AcceptClanJoining.RemoveListener(AcceptUser);
         GameEvent.instance.DeclineClanJoining.RemoveListener(DeclineUser);
+        GameEvent.instance.KickPlayer.RemoveListener(KickMember);
     }
 }

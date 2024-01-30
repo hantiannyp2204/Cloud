@@ -258,6 +258,56 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &239424079
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 239424081}
+  - component: {fileID: 239424080}
+  m_Layer: 0
+  m_Name: FriendManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &239424080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239424079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61e26c7e10664ae46aac27eb708db4ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FriendPrefab: {fileID: 8164445539519619253, guid: c0cc99dc8ee040c4c9dfa784ae4f1ae0, type: 3}
+  PendingPrefab: {fileID: 6091099490531920724, guid: 9119bd03c4e9a4945a043edb0ba724b4, type: 3}
+  RequestPrefab: {fileID: 6091099490531920724, guid: c951c10907b11614ead75e9f98bd877c, type: 3}
+  displayListContent: {fileID: 7264644516865695020}
+  leaderboarddisplay: {fileID: 164255954}
+  tgtFriend: {fileID: 726905933}
+--- !u!4 &239424081
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239424079}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 260.84152, y: 180.45764, z: -0.15713075}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &495688420
 GameObject:
   m_ObjectHideFlags: 0
@@ -831,7 +881,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 239424080}
         m_TargetAssemblyTypeName: FriendManager, Assembly-CSharp
         m_MethodName: GetFriends
         m_Mode: 3
@@ -965,7 +1015,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 239424080}
         m_TargetAssemblyTypeName: FriendManager, Assembly-CSharp
         m_MethodName: GetFriends
         m_Mode: 3
@@ -1236,9 +1286,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 239424080}
         m_TargetAssemblyTypeName: FriendManager, Assembly-CSharp
-        m_MethodName: GoToMain
+        m_MethodName: OnMainMenuButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1479,7 +1529,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 239424080}
         m_TargetAssemblyTypeName: FriendManager, Assembly-CSharp
         m_MethodName: GetFriends
         m_Mode: 3
@@ -1883,7 +1933,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 239424080}
         m_TargetAssemblyTypeName: FriendManager, Assembly-CSharp
         m_MethodName: OnAddFriend
         m_Mode: 1
@@ -2795,7 +2845,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7264644516634399780, guid: 2126f1f280ce7f74a91d6667975e9456, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 306.24
+      value: 300.74
       objectReference: {fileID: 0}
     - target: {fileID: 7264644516634399780, guid: 2126f1f280ce7f74a91d6667975e9456, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2831,7 +2881,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7264644516634399780, guid: 2126f1f280ce7f74a91d6667975e9456, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -16.882
+      value: -14.131
       objectReference: {fileID: 0}
     - target: {fileID: 7264644516634399780, guid: 2126f1f280ce7f74a91d6667975e9456, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2849,5 +2899,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Display
       objectReference: {fileID: 0}
+    - target: {fileID: 7264644517803994785, guid: 2126f1f280ce7f74a91d6667975e9456, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2126f1f280ce7f74a91d6667975e9456, type: 3}
+--- !u!1 &7264644516865695020 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7264644517803994784, guid: 2126f1f280ce7f74a91d6667975e9456, type: 3}
+  m_PrefabInstance: {fileID: 7264644516865695018}
+  m_PrefabAsset: {fileID: 0}

@@ -40,6 +40,7 @@ public class MyPlayFab : MonoBehaviour
     {
         var request = new GetAccountInfoRequest
         {
+            
         };
 
         PlayFabClientAPI.GetAccountInfo(request, result => {  myPlayFabTitleID = result.AccountInfo.TitleInfo.TitlePlayerAccount.Id; }, 
