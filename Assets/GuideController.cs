@@ -23,11 +23,14 @@ public class GuideController : MonoBehaviour
     [SerializeField] TMP_InputField guideDescription;
     [SerializeField] GameObject display;
     [SerializeField] ClanInfo clanInfo;
+    [SerializeField] TMP_InputField ToInviteToGroup;
     //For prefabs
     [SerializeField] GameObject clanPrefab;
 
     //player info
     string PlayerTitleID;
+
+
 
     //ghost memeber info
     PlayFab.GroupsModels.EntityKey ghostEntity = EntityKeyMaker("12BCA4C50B6DAE79", "title_player_account");
@@ -126,7 +129,6 @@ public class GuideController : MonoBehaviour
     {
         public string GroupName;
         public GroupDetails Group;
-        // Add other properties as needed
     }
 
     [System.Serializable]
@@ -254,10 +256,11 @@ public class GuideController : MonoBehaviour
       
 
     }
-    public void DeleteGroup(string groupId)
+
+    public void DeleteGroup()
     {
         // A title, or player-controlled entity with authority to do so, decides to destroy an existing group
-        var request = new DeleteGroupRequest { Group = EntityKeyMaker(groupId,"group") };
+        var request = new DeleteGroupRequest { Group = EntityKeyMaker(clanInfo.GroupID,"group") };
         PlayFabGroupsAPI.DeleteGroup(request, OnDeleteGroup, OnSharedError);
     }
     private void OnDeleteGroup(PlayFab.GroupsModels.EmptyResponse response)
@@ -272,27 +275,30 @@ public class GuideController : MonoBehaviour
         entityGroupPairs.IntersectWith(temp);
         groupNameById.Remove(prevRequest.Group.Id);
     }
-
+    public void OnInviteToGroupBtn()
+    {
+        //getting title ID using name
+        var GetAccReq = new GetAccountInfoRequest
+        {
+            TitleDisplayName = ToInviteToGroup.text
+        };
+        PlayFabClientAPI.GetAccountInfo(GetAccReq, result => { InviteToGroup(clanInfo.GroupID, EntityKeyMaker(result.AccountInfo.TitleInfo.TitlePlayerAccount.Id, "title_player_account")); }, result => Debug.Log(result));
+       
+    }
     public void InviteToGroup(string groupId, PlayFab.GroupsModels.EntityKey entityKey)
     {
         // A player-controlled entity invites another player-controlled entity to an existing group
         var request = new InviteToGroupRequest { Group = EntityKeyMaker(groupId, "group"), Entity = entityKey };
-        PlayFabGroupsAPI.InviteToGroup(request, OnInvite, OnSharedError);
+        PlayFabGroupsAPI.InviteToGroup(request, result => Debug.Log(result), result => Debug.Log(result));
     }
     public void OnInvite(InviteToGroupResponse response)
     {
         var prevRequest = (InviteToGroupRequest)response.Request;
 
         // Presumably, this would be part of a separate process where the recipient reviews and accepts the request
-        var request = new AcceptGroupInvitationRequest { Group = EntityKeyMaker(prevRequest.Group.Id,"group"), Entity = prevRequest.Entity };
-        PlayFabGroupsAPI.AcceptGroupInvitation(request, OnAcceptInvite, OnSharedError);
+
     }
-    public void OnAcceptInvite(PlayFab.GroupsModels.EmptyResponse response)
-    {
-        var prevRequest = (AcceptGroupInvitationRequest)response.Request;
-        Debug.Log("Entity Added to Group: " + prevRequest.Entity.Id + " to " + prevRequest.Group.Id);
-        entityGroupPairs.Add(new KeyValuePair<string, string>(prevRequest.Entity.Id, prevRequest.Group.Id));
-    }
+  
     public void ApplyToGroup()
     {
         // A player-controlled entity applies to join an existing group (of which they are not already a member)
@@ -318,7 +324,8 @@ public class GuideController : MonoBehaviour
     public void OnLeaveButtonPressed()
     {
         KickMember(EntityKeyMaker(MyPlayFab.Instance.myPlayFabTitleID, "title_player_account"));
-    }    
+    }
+
     public void KickMember( PlayFab.GroupsModels.EntityKey entityKey)
     {
         var request = new RemoveMembersRequest { Group = EntityKeyMaker(clanInfo.GroupID, "group"), Members = new List<PlayFab.GroupsModels.EntityKey> { entityKey } };

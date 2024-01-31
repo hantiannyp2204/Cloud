@@ -10,20 +10,29 @@ using System.Linq;
 
 public class FriendManager : MonoBehaviour
 {
-    [SerializeField] GameObject FriendPrefab,PendingPrefab,RequestPrefab, displayListContent;
+    [SerializeField] GameObject FriendPrefab, PendingPrefab, RequestPrefab, displayListContent;
     [SerializeField] TextMeshProUGUI leaderboarddisplay;
     [SerializeField] TMP_InputField tgtFriend;
+
+    //For trade UI
+    [SerializeField] GameObject TradeUI;
+    [SerializeField] TMP_Text FriendName;
+
+
+    //For incoming UI
+    [SerializeField] GameObject IncomingUI;
+
+    string CurrentFriendID;
+
     List<FriendInfo> _friends = null;
     enum FriendIdType { PlayFabId, Username, Email, DisplayName };
-    public enum ListType { Friends,Pending,Request };
+    public enum ListType { Friends, Pending, Request };
     string myPlayFabID;
     private void Start()
     {
+        TradeUI.SetActive(false);
+        HideIncoming();
         myPlayFabID = MyPlayFab.Instance.myPlayFabMasterID;
-    }
-    public void GoToMain()
-    {
-        SceneManager.LoadScene("MainMenu");
     }
     //Display Friend Code
     void DisplayFriends(List<FriendInfo> friendsCache, int listType)
@@ -35,24 +44,26 @@ public class FriendManager : MonoBehaviour
             Transform child = displayListContent.transform.GetChild(i);
             Destroy(child.gameObject);
         }
-        friendsCache.ForEach(f => {
+        friendsCache.ForEach(f =>
+        {
             switch (listType)
             {
                 case 0:
                     if (f.Tags.Contains("friend"))
                     {
-                        GameObject requestPrefab = Instantiate(FriendPrefab);
-                        requestPrefab.transform.parent = displayListContent.transform;
+                        GameObject requestPrefab = Instantiate(FriendPrefab, displayListContent.transform);
+ 
                         //setting the Name placeholder to name of frined
                         requestPrefab.transform.Find("Name").GetComponent<TMP_Text>().text = f.TitleDisplayName;
                         requestPrefab.GetComponent<RequestData>().RequesteeID = f.FriendPlayFabId;
+                        requestPrefab.GetComponent<RequestData>().friendName = f.TitleDisplayName;
+                        CurrentFriendID = f.FriendPlayFabId;
                     }
                     break;
                 case 1:
                     if (f.Tags.Contains("requestee"))
                     {
-                        GameObject requestPrefab = Instantiate(PendingPrefab);
-                        requestPrefab.transform.parent = displayListContent.transform;
+                        GameObject requestPrefab = Instantiate(PendingPrefab, displayListContent.transform);
                         //setting the Name placeholder to name of frined
                         requestPrefab.transform.Find("Name").GetComponent<TMP_Text>().text = f.TitleDisplayName;
                         requestPrefab.GetComponent<RequestData>().RequesteeID = f.FriendPlayFabId;
@@ -61,8 +72,7 @@ public class FriendManager : MonoBehaviour
                 case 2:
                     if (f.Tags.Contains("requester"))
                     {
-                        GameObject requestPrefab = Instantiate(RequestPrefab);
-                        requestPrefab.transform.parent = displayListContent.transform;
+                        GameObject requestPrefab = Instantiate(RequestPrefab, displayListContent.transform);
                         //setting the Name placeholder to name of frined
                         requestPrefab.transform.Find("Name").GetComponent<TMP_Text>().text = f.TitleDisplayName;
                         requestPrefab.GetComponent<RequestData>().RequesteeID = f.FriendPlayFabId;
@@ -73,7 +83,18 @@ public class FriendManager : MonoBehaviour
 
         });
     }
-
+    public void GiveItemTo(string secondPlayerId, List<string> myItemInstanceId)
+    {
+        PlayFabClientAPI.OpenTrade(new OpenTradeRequest
+        {
+            AllowedPlayerIds = new List<string> { secondPlayerId }, // PlayFab ID for the friend who will receive your gift
+            OfferedInventoryInstanceIds = myItemInstanceId // The item instanceId fetched from GetUserInventory()
+        }, result => Debug.Log(result.Trade.TradeId), result => Debug.Log(result)); ;
+    }
+    public void ConfirmGiftRequest(List<string> itemID)
+    {
+        GiveItemTo(CurrentFriendID, itemID);
+    }
     //Get Friend Code
     public void GetFriends(int listType)
     {
@@ -81,7 +102,8 @@ public class FriendManager : MonoBehaviour
         {
             // ExternalPlatformFriends = false,
             // XboxToken = null
-        }, result => {
+        }, result =>
+        {
             _friends = result.Friends;
             DisplayFriends(_friends, listType); // triggers your UI
         }, DisplayPlayFabError);
@@ -107,7 +129,8 @@ public class FriendManager : MonoBehaviour
                 break;
         }
         // Execute request and update friends when we are done
-        PlayFabClientAPI.AddFriend(request, result => {
+        PlayFabClientAPI.AddFriend(request, result =>
+        {
             Debug.Log("Friend added successfully!");
         }, DisplayPlayFabError);
     }
@@ -118,12 +141,13 @@ public class FriendManager : MonoBehaviour
 
         //getting friend's playfab ID
         string friendPlayID = null;
-        var requestFriendID = new GetAccountInfoRequest{TitleDisplayName = tgtFriend.text };
-        PlayFabClientAPI.GetAccountInfo(requestFriendID,result=> {
+        var requestFriendID = new GetAccountInfoRequest { TitleDisplayName = tgtFriend.text };
+        PlayFabClientAPI.GetAccountInfo(requestFriendID, result =>
+        {
             friendPlayID = result.AccountInfo.PlayFabId;
-            var GetTitleIDReq = new GetAccountInfoRequest {PlayFabId = result.AccountInfo.PlayFabId };
+            var GetTitleIDReq = new GetAccountInfoRequest { PlayFabId = result.AccountInfo.PlayFabId };
             PlayFabClientAPI.GetAccountInfo(GetTitleIDReq, result => Debug.Log(result.AccountInfo.TitleInfo.TitlePlayerAccount.Id), result => Debug.Log(result));
-            
+
             Debug.Log("friend's id is: " + result.AccountInfo.PlayFabId);
             if (myPlayFabID != null && friendPlayID != null)
             {
@@ -133,7 +157,7 @@ public class FriendManager : MonoBehaviour
             {
                 Debug.Log("Can't get own ID dah");
             }
-        },result=>Debug.Log("error somewhere dah"));
+        }, result => Debug.Log("error somewhere dah"));
 
     }
     //runs the cloud script
@@ -148,7 +172,7 @@ public class FriendManager : MonoBehaviour
                 reciverID = friendPlayID
             }
         };
-        PlayFabClientAPI.ExecuteCloudScript(request,result=> Debug.Log(myPlayFabID + " sent friend request to "+ friendPlayID), result => Debug.Log("Some error in code dahh"));
+        PlayFabClientAPI.ExecuteCloudScript(request, result => Debug.Log(myPlayFabID + " sent friend request to " + friendPlayID), result => Debug.Log("Some error in code dahh"));
     }
     //Remove Friend Code
     void RemoveFriend(string friendName)
@@ -157,14 +181,16 @@ public class FriendManager : MonoBehaviour
         {
             // ExternalPlatformFriends = false,
             // XboxToken = null
-        }, result => {
+        }, result =>
+        {
             _friends = result.Friends;
             RemoveFriendWithName(_friends, friendName); // triggers your UI
         }, DisplayPlayFabError);
     }
     void RemoveFriendWithName(List<FriendInfo> friendsCache, string friendName)
     {
-        friendsCache.ForEach(f => {
+        friendsCache.ForEach(f =>
+        {
             if (friendName == f.TitleDisplayName)
             {
                 RemoveFriendFromFriendList(f.FriendPlayFabId);
@@ -177,20 +203,21 @@ public class FriendManager : MonoBehaviour
         List<string> friendID = new();
         PlayFabClientAPI.GetFriendLeaderboard(
         new GetFriendLeaderboardRequest { StatisticName = "highscore", MaxResultsCount = 10 },
-        r => {
+        r =>
+        {
             //get all friends with "Friend" tags
             PlayFabClientAPI.GetFriendsList(new GetFriendsListRequest
             {
-                // ExternalPlatformFriends = false,
-                // XboxToken = null
-            }, 
+
+            },
             result =>
             {
                 //This array list stores all friend's name with tags "Friend"
-                
+
                 _friends = result.Friends;
-                _friends.ForEach(f => { 
-                    if(f.Tags.Contains("friend"))
+                _friends.ForEach(f =>
+                {
+                    if (f.Tags.Contains("friend"))
                     {
                         Debug.Log("plus one");
                         friendID.Add(f.FriendPlayFabId);
@@ -199,15 +226,17 @@ public class FriendManager : MonoBehaviour
                     //only print out frineds with same name as frinedArray
                     Debug.Log(friendID.Count);
                     leaderboarddisplay.text = "Friends LB\n";
+                    int friendPosition = 1;
                     foreach (var leaderboardFriend in r.Leaderboard)
                     {
                         for (int x = 0; x < friendID.Count; x++)
                         {
                             if (leaderboardFriend.PlayFabId == friendID[x])
                             {
-                                string onerow = leaderboardFriend.Position + " | " + leaderboardFriend.DisplayName + " | " + leaderboardFriend.StatValue + "\n";
+                                string onerow = friendPosition + " | " + leaderboardFriend.DisplayName + " | " + leaderboardFriend.StatValue + "\n";
                                 Debug.Log("Tag: " + leaderboardFriend.Profile.Tags);
                                 leaderboarddisplay.text += onerow;
+                                friendPosition++;
                             }
                         }
 
@@ -218,7 +247,7 @@ public class FriendManager : MonoBehaviour
             , result => Debug.Log("error in code dah")
             );
 
-            
+
         }, DisplayPlayFabError);
     }
 
@@ -230,19 +259,46 @@ public class FriendManager : MonoBehaviour
             FriendPlayFabId = pfid
         };
         PlayFabClientAPI.RemoveFriend(req
-        , result => {
+        , result =>
+        {
             Debug.Log("unfriend!");
         }, DisplayPlayFabError);
     }
 
     public void OnMainMenuButton()
     {
-        SceneManager.LoadScene("Menu"); //change this to your main scene pls
+        SceneManager.LoadScene("MainMenu");
     }
 
+
+    public void ShowTradeUI(string friendID)
+    {
+        TradeUI.SetActive(true);
+        FriendName.text = "Gift to player: " + friendID;
+    }
+    public void HideTradeUI()
+    {
+        TradeUI.SetActive(false);
+    }
+    public void ShowIncoming()
+    {
+        IncomingUI.SetActive(true);
+    }
+    public void HideIncoming()
+    {
+        IncomingUI.SetActive(false);
+    }
     void DisplayPlayFabError(PlayFabError error) { Debug.Log(error.GenerateErrorReport()); }
     void DisplayError(string error) { Debug.LogError(error); }
 
-    
-
+    private void OnEnable()
+    {
+        GameEvent.instance.showGiftDetails.AddListener(ShowTradeUI);
+        GameEvent.instance.sendGift.AddListener(ConfirmGiftRequest);
+    }
+    private void OnDisable()
+    {
+        GameEvent.instance.showGiftDetails.RemoveListener(ShowTradeUI);
+        GameEvent.instance.sendGift.RemoveListener(ConfirmGiftRequest);
+    }
 }

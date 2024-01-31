@@ -64,7 +64,7 @@ public class UserInventory : MonoBehaviour
     {
 
         // Specify the request details
-        var request = new GetUserInventoryRequest();
+        var request = new GetUserInventoryRequest { };
 
         
         // Send the request to get the user's inventory

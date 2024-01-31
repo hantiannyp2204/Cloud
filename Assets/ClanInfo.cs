@@ -23,11 +23,18 @@ public class ClanInfo : MonoBehaviour
     [SerializeField] GameObject pendingDisplay;
 
     //To show pending if player is admin and is in the group
-    [SerializeField] GameObject pendingButton;
+    [SerializeField] GameObject PendingInvitesButton;
+    [SerializeField] GameObject settingsBtn;
+    [SerializeField] GameObject inviteUI;
+    [SerializeField] GameObject settingsUI;
 
+    //Joining the group status
     [SerializeField] GameObject JoinButton;
     [SerializeField] GameObject LeaveButton;
-    [SerializeField] GameObject PendingButton;
+    [SerializeField] GameObject PendingJoinButton;
+
+    //check any grp inv
+    [SerializeField] GameObject GroupInvUI;
 
     public string GroupName;
     public string GroupID;
@@ -36,12 +43,39 @@ public class ClanInfo : MonoBehaviour
     {
         hideClanDetails();
         pendingDisplay.SetActive(false);
+        CloseInviteUI();
+        CloseSettingsUI();
+        HideInvUI();
     }
 
  
     public void ClosePendingRequests()
     {
         pendingDisplay.SetActive(false);
+    }
+    public void OpenInviteUI()
+    {
+        inviteUI.SetActive(true);
+    }
+    public void CloseInviteUI()
+    {
+        inviteUI.SetActive(false);
+    }
+    public void OpenSettingsUI()
+    {
+        settingsUI.SetActive(true);
+    }
+    public void CloseSettingsUI()
+    {
+        settingsUI.SetActive(false);
+    }
+    public void ShowInvUI()
+    {
+        GroupInvUI.SetActive(true);
+    }
+    public void HideInvUI()
+    {
+        GroupInvUI.SetActive(false);
     }
     public void ShowPendingRequests()
     {
@@ -123,11 +157,11 @@ public class ClanInfo : MonoBehaviour
     void showClanDetails(string _clanName, string _clanDesription, string _groupID)
     {
         //init the pending button to be hiden and invite button to be invite button
-        pendingButton.gameObject.SetActive(false);
-
+        PendingInvitesButton.gameObject.SetActive(false);
+        settingsBtn.gameObject.SetActive(false);
         JoinButton.gameObject.SetActive(false);
         LeaveButton.gameObject.SetActive(false);
-        PendingButton.gameObject.SetActive(false);
+        PendingJoinButton.gameObject.SetActive(false);
 
         //delete all exisitng prefab if exist
         for (int i = groupMemberDisplayContent.transform.childCount - 1; i >= 0; i--)
@@ -200,17 +234,10 @@ public class ClanInfo : MonoBehaviour
                                   I_AM_ADMIN = true;
 
                                   //show the pending request button
-                                  pendingButton.gameObject.SetActive(true);
+                                  PendingInvitesButton.gameObject.SetActive(true);
+                                  settingsBtn.gameObject.SetActive(true);
                               }
-                              //player not an admin
-                              else
-                              {
-                                  //dont show the pending request button
-                                  pendingButton.gameObject.SetActive(false);
-                              }
-
                               showPlayers(members);
-
                           }
                           //see all members with Member role
                           foreach (var members in result.Members[1].Members)
@@ -232,7 +259,7 @@ public class ClanInfo : MonoBehaviour
                     var listGrpApplicationReq = new ListGroupApplicationsRequest
                     {
                         Group = new PlayFab.GroupsModels.EntityKey
-                        {
+                        {   
                             Id = GroupID,
                             Type = "group"
                         }
@@ -247,7 +274,7 @@ public class ClanInfo : MonoBehaviour
                             if (hasPendingApplication)
                             {
                                 //enable the request sent button
-                                PendingButton.gameObject.SetActive(true);
+                                PendingJoinButton.gameObject.SetActive(true);
                             }
                             else
                             {
@@ -283,6 +310,7 @@ public class ClanInfo : MonoBehaviour
             error => Debug.LogError($"Error listing group members: {error.GenerateErrorReport()}")
         );
     }
+
     void showPlayers(EntityWithLineage members)
     {
         //get the player's Master ID using TitleID
@@ -315,5 +343,4 @@ public class ClanInfo : MonoBehaviour
     {
         clanInfo.SetActive(false);
     }
-
 }

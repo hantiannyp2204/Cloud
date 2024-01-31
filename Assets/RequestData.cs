@@ -8,20 +8,8 @@ public class RequestData : MonoBehaviour
 {
     public string RequesteeID;
 
-    string myPlayFabID;
-    private void Start()
-    {
-        GetUserAccountInfo();
-    }
-    void GetUserAccountInfo()
-    {
-        var request = new GetPlayerProfileRequest
-        {
-        };
+    public string friendName;
 
-        PlayFabClientAPI.GetPlayerProfile(request, result => { Debug.Log(myPlayFabID); myPlayFabID = result.PlayerProfile.PlayerId; Debug.Log(myPlayFabID); }, Errorresult => { Debug.Log(Errorresult); });
-
-    }
     public void AcceptFriend()
     {
         var request = new ExecuteCloudScriptRequest()
@@ -29,11 +17,11 @@ public class RequestData : MonoBehaviour
             FunctionName = "acceptFriendRequest",
             FunctionParameter = new
             {
-                senderID = myPlayFabID,
+                senderID = MyPlayFab.Instance.myPlayFabMasterID,
                 reciverID = RequesteeID
             }
         };
-        PlayFabClientAPI.ExecuteCloudScript(request, result => Debug.Log(myPlayFabID + " accepted friend request to " + RequesteeID), result => Debug.Log("Some error in code dahh"));
+        PlayFabClientAPI.ExecuteCloudScript(request, result => Debug.Log(MyPlayFab.Instance.myPlayFabMasterID + " accepted friend request to " + RequesteeID), result => Debug.Log("Some error in code dahh"));
         Destroy(gameObject);
     }
     public void DeclineFriend()
@@ -43,11 +31,17 @@ public class RequestData : MonoBehaviour
             FunctionName = "declineFrinedRequest",
             FunctionParameter = new
             {
-                senderID = myPlayFabID,
+                senderID = MyPlayFab.Instance.myPlayFabMasterID,
                 reciverID = RequesteeID
             }
         };
-        PlayFabClientAPI.ExecuteCloudScript(request, result => Debug.Log(myPlayFabID + " accepted friend request to " + RequesteeID), result => Debug.Log("Some error in code dahh"));
+        PlayFabClientAPI.ExecuteCloudScript(request, result => Debug.Log(MyPlayFab.Instance.myPlayFabMasterID + " accepted friend request to " + RequesteeID), result => Debug.Log("Some error in code dahh"));
         Destroy(gameObject);
+    }
+
+
+    public void SendGiftRequest()
+    {
+        GameEvent.instance.showGiftDetails.Invoke(friendName);
     }
 }

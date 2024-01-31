@@ -93,6 +93,11 @@ public class CharacterSelection : MonoBehaviour {
         SceneManager.LoadScene("ClanTab");
 
     }
+    public void RunTradeTab()
+    {
+        SceneManager.LoadScene("Trading Hub");
+
+    }
     public int getIndex(){
         return index;
     }

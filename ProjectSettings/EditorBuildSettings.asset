@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ClanTab.unity
     guid: e8266ffc8b7a31d49aa0e03449bd2b21
+  - enabled: 1
+    path: Assets/Scenes/Trading Hub.unity
+    guid: 15609c7f542d7104a86d8ad91e600115
   m_configObjects: {}

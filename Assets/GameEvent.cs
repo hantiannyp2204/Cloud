@@ -12,6 +12,10 @@ public class GameEvent : MonoBehaviour
     public UnityEvent<string> AcceptClanJoining;
     public UnityEvent<string> DeclineClanJoining;
     public UnityEvent<PlayFab.GroupsModels.EntityKey> KickPlayer;
+    public UnityEvent<string> showGiftDetails;
+    public UnityEvent<string,string> addGiftToList;
+    public UnityEvent<string> removeGiftFromList;
+    public UnityEvent<List<string>> sendGift;
     private void Awake()
     {
         //1. make this class a singleton
@@ -26,6 +30,10 @@ public class GameEvent : MonoBehaviour
         AcceptClanJoining = new();
         DeclineClanJoining = new();
         KickPlayer = new();
+        showGiftDetails = new();
+        addGiftToList = new();
+        removeGiftFromList = new();
+        sendGift = new();
     }
 
     //4. head to the GO that contains the original fucntion (This case it is ClanInfo.cs, it has the fucntion that spawns the ClanInfo GO, which is what we want)
