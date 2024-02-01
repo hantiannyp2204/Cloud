@@ -26,6 +26,7 @@ public class GuideController : MonoBehaviour
     [SerializeField] TMP_InputField ToInviteToGroup;
     //For prefabs
     [SerializeField] GameObject clanPrefab;
+    [SerializeField] GameObject createGuild;
 
     //player info
     string PlayerTitleID;
@@ -38,7 +39,10 @@ public class GuideController : MonoBehaviour
     public readonly HashSet<KeyValuePair<string, string>> entityGroupPairs = new HashSet<KeyValuePair<string, string>>();
     public readonly Dictionary<string, string> groupNameById = new Dictionary<string, string>();
 
-
+    private void Start()
+    {
+        createGuild.SetActive(false);
+    }
 
     public static PlayFab.GroupsModels.EntityKey EntityKeyMaker(string entityId, string type)
     {
@@ -253,8 +257,7 @@ public class GuideController : MonoBehaviour
             }, OnSharedError);
         },OnSharedError);
 
-      
-
+        createGuild.SetActive(false);
     }
 
     public void DeleteGroup()
@@ -354,5 +357,15 @@ public class GuideController : MonoBehaviour
         GameEvent.instance.AcceptClanJoining.RemoveListener(AcceptUser);
         GameEvent.instance.DeclineClanJoining.RemoveListener(DeclineUser);
         GameEvent.instance.KickPlayer.RemoveListener(KickMember);
+    }
+
+    public void OpenCreate()
+    {
+        createGuild.SetActive(true);
+    }
+
+    public void CloseCreate()
+    {
+        createGuild.SetActive(false);
     }
 }

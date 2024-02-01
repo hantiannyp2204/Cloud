@@ -10,7 +10,7 @@ using System.Linq;
 
 public class FriendManager : MonoBehaviour
 {
-    [SerializeField] GameObject FriendPrefab, PendingPrefab, RequestPrefab, displayListContent;
+    [SerializeField] GameObject FriendPrefab, PendingPrefab, RequestPrefab, displayListContent, Addfriend;
     [SerializeField] TextMeshProUGUI leaderboarddisplay;
     [SerializeField] TMP_InputField tgtFriend;
 
@@ -33,6 +33,7 @@ public class FriendManager : MonoBehaviour
         TradeUI.SetActive(false);
         HideIncoming();
         myPlayFabID = MyPlayFab.Instance.myPlayFabMasterID;
+        Addfriend.SetActive(false);
     }
     //Display Friend Code
     void DisplayFriends(List<FriendInfo> friendsCache, int listType)
@@ -158,7 +159,7 @@ public class FriendManager : MonoBehaviour
                 Debug.Log("Can't get own ID dah");
             }
         }, result => Debug.Log("error somewhere dah"));
-
+        Addfriend.SetActive(false);
     }
     //runs the cloud script
     void sendFriendRequest(string myPlayFabID, string friendPlayID)
@@ -300,5 +301,15 @@ public class FriendManager : MonoBehaviour
     {
         GameEvent.instance.showGiftDetails.RemoveListener(ShowTradeUI);
         GameEvent.instance.sendGift.RemoveListener(ConfirmGiftRequest);
+    }
+
+    public void OpenFriend()
+    {
+        Addfriend.SetActive(true);
+    }
+
+    public void CloseFriend()
+    {
+        Addfriend.SetActive(false);
     }
 }
